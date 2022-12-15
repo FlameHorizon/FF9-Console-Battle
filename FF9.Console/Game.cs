@@ -1,130 +1,189 @@
-﻿namespace FF9.Console;
+﻿using System.ComponentModel;
+
+namespace FF9.Console;
 
 public class Game
 {
-    private int _cursorPositionLeft = 1;
-    private int _cursorPositionTop = 1;
+    private const int MessageLinePositionTop = 0;
+    private const int MessageLinePositionLeft = 0;
+
+    private const int BattleMenuPositionLeft = 0;
+    private const int BattleMenuPositionTop = MessageLinePositionTop + 2;
+
+    private int _battleMenuCursorPositionLeft = 1;
+    private int _battleMenuCursorPositionTop = BattleMenuPositionTop + 1;
+    private PlayerAction? _currentPlayerAction = PlayerAction.Attack;
+
+    private readonly Dictionary<string, PlayerAction> _battleMenuPlayerAction = new()
+    {
+        { "Attack", PlayerAction.Attack },
+        { "Steal", PlayerAction.Steal },
+        { "Defend", PlayerAction.Defened },
+        { "Item", PlayerAction.UseItem },
+        { "Change", PlayerAction.Change }
+    };
+
 
     public void Start()
     {
         System.Console.CursorVisible = false;
 
+        System.Console.WriteLine("This is message line.");
+
+        // Start drawing menu three lines below first line.
+        System.Console.SetCursorPosition(0, 2);
         System.Console.WriteLine("|---------|---------|");
-        System.Console.WriteLine("|>Attack  | Defend  |");
+        System.Console.WriteLine("| Attack  | Defend  |");
         System.Console.WriteLine("|---------|---------|");
         System.Console.WriteLine("| Steal   |         |");
         System.Console.WriteLine("|---------|---------|");
         System.Console.WriteLine("| Item    | Change  |");
         System.Console.WriteLine("|---------|---------|");
 
+        SetBattleMenuCursor(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
+
         while (true)
         {
-            ConsoleKeyInfo k = System.Console.ReadKey(true);
-            if (k.Key == ConsoleKey.B)
+            ConsoleKeyInfo keyPressed = System.Console.ReadKey(true);
+
+            if (keyPressed.Key == ConsoleKey.B)
             {
                 System.Console.WriteLine("Wrote B, exiting program.");
                 break;
             }
-            else if (k.Key == ConsoleKey.DownArrow)
+
+            if (ArrowKeyPressed(keyPressed))
             {
-                // Create down offset.
-                (int left, int top) moveOffset = (0, 2);
-
-                // Check boundaries.
-                if (_cursorPositionTop + moveOffset.top >= 6)
-                {
-                    continue;
-                }
-
-                // Clear cursor behind.
-                System.Console.SetCursorPosition(_cursorPositionLeft, _cursorPositionTop);
-                System.Console.Write(" ");
-
-                (int left, int top) newCursorPosition =
-                    (_cursorPositionLeft + moveOffset.left, _cursorPositionTop + moveOffset.top);
-
-                // Write new cursor location.
-                System.Console.SetCursorPosition(newCursorPosition.left, newCursorPosition.top);
-                _cursorPositionLeft = newCursorPosition.left;
-                _cursorPositionTop = newCursorPosition.top;
-                System.Console.Write(">");
+                HandleArrowKey(keyPressed);
+                UpdateCurrentPlayerAction();
             }
-            else if (k.Key == ConsoleKey.UpArrow)
+            else if (ConsoleKey.Enter == keyPressed.Key)
             {
-                // Create up offset.
-                (int left, int top) moveOffset = (0, -2);
-
-                // Check boundaries.
-                if (_cursorPositionTop + moveOffset.top <= 0)
-                {
-                    continue;
-                }
-
-                // Clear cursor behind.
-                System.Console.SetCursorPosition(_cursorPositionLeft, _cursorPositionTop);
-                System.Console.Write(" ");
-
-                (int left, int top) newCursorPosition =
-                    (_cursorPositionLeft + moveOffset.left, _cursorPositionTop + moveOffset.top);
-
-                // Write new cursor location.
-                System.Console.SetCursorPosition(newCursorPosition.left, newCursorPosition.top);
-                _cursorPositionLeft = newCursorPosition.left;
-                _cursorPositionTop = newCursorPosition.top;
-                System.Console.Write(">");
-            }
-            else if (k.Key == ConsoleKey.RightArrow)
-            {
-                // Create right offset.
-                (int left, int top) moveOffset = (10, 0);
-
-                // Check boundaries.
-                if (_cursorPositionLeft + moveOffset.left >= 12)
-                {
-                    continue;
-                }
-
-                // Clear cursor behind.
-                System.Console.SetCursorPosition(_cursorPositionLeft, _cursorPositionTop);
-                System.Console.Write(" ");
-
-                (int left, int top) newCursorPosition =
-                    (_cursorPositionLeft + moveOffset.left, _cursorPositionTop + moveOffset.top);
-
-                // Write new cursor location.
-                System.Console.SetCursorPosition(newCursorPosition.left, newCursorPosition.top);
-                _cursorPositionLeft = newCursorPosition.left;
-                _cursorPositionTop = newCursorPosition.top;
-                System.Console.Write(">");
-            }
-            else if (k.Key == ConsoleKey.LeftArrow)
-            {
-                // Create left offset.
-                (int left, int top) moveOffset = (-10, 0);
-
-                // Check boundaries.
-                if (_cursorPositionLeft + moveOffset.left < 0)
-                {
-                    continue;
-                }
-
-                // Clear cursor behind.
-                System.Console.SetCursorPosition(_cursorPositionLeft, _cursorPositionTop);
-                System.Console.Write(" ");
-
-                (int left, int top) newCursorPosition =
-                    (_cursorPositionLeft + moveOffset.left, _cursorPositionTop + moveOffset.top);
-
-                // Write new cursor location.
-                System.Console.SetCursorPosition(newCursorPosition.left, newCursorPosition.top);
-                _cursorPositionLeft = newCursorPosition.left;
-                _cursorPositionTop = newCursorPosition.top;
-                System.Console.Write(">");
+                ExecuteAction();
             }
             else
-            {
                 System.Console.WriteLine();
-            }
         }
     }
+
+    private void UpdateCurrentPlayerAction()
+    {
+        // Get line where currently cursor is to retrieve selected action name.
+        string line = ReadConsole.GetText(0, _battleMenuCursorPositionTop);
+
+        string actionName = line.Split("|")
+            .First(x => x.Contains('>'))
+            .Replace(">", string.Empty)
+            .Trim();
+
+        _currentPlayerAction = string.IsNullOrEmpty(actionName)
+            ? null
+            : _battleMenuPlayerAction[actionName];
+    }
+
+    private void ExecuteAction()
+    {
+        string msg = _currentPlayerAction switch
+        {
+            PlayerAction.Attack => "Player attacked another player",
+            PlayerAction.Steal => "Player steals an item",
+            PlayerAction.UseItem => "Player uses item",
+            PlayerAction.Defened => "Player defends",
+            PlayerAction.Change => "Player changes",
+            null => string.Empty,
+            _ => throw new InvalidEnumArgumentException()
+        };
+
+        WriteMessage(msg);
+    }
+
+    private static void WriteMessage(string msg)
+    {
+        ConsoleExtensions.ClearLine(MessageLinePositionTop);
+        System.Console.SetCursorPosition(MessageLinePositionLeft, MessageLinePositionTop);
+        System.Console.Write(msg);
+    }
+
+
+    private static bool ArrowKeyPressed(ConsoleKeyInfo keyPressed)
+    {
+        return new[] { ConsoleKey.DownArrow, ConsoleKey.UpArrow, ConsoleKey.RightArrow, ConsoleKey.LeftArrow }
+            .Contains(keyPressed.Key);
+    }
+
+    private void HandleArrowKey(ConsoleKeyInfo keyPressed)
+    {
+        if (keyPressed.Key == ConsoleKey.DownArrow)
+            MoveBattleMenuCursor(CursorMoveDirection.Down);
+
+        else if (keyPressed.Key == ConsoleKey.UpArrow)
+            MoveBattleMenuCursor(CursorMoveDirection.Up);
+
+        else if (keyPressed.Key == ConsoleKey.RightArrow)
+            MoveBattleMenuCursor(CursorMoveDirection.Right);
+
+        else if (keyPressed.Key == ConsoleKey.LeftArrow)
+            MoveBattleMenuCursor(CursorMoveDirection.Left);
+    }
+
+    private void SetBattleMenuCursor(int left, int top)
+    {
+        System.Console.SetCursorPosition(left, top);
+        System.Console.Write(">");
+    }
+
+    private void MoveBattleMenuCursor(CursorMoveDirection direction)
+    {
+        if (direction == CursorMoveDirection.Up)
+            MoveBattleMenuCursor((0, -2));
+
+        else if (direction == CursorMoveDirection.Down)
+            MoveBattleMenuCursor((0, 2));
+
+        else if (direction == CursorMoveDirection.Left)
+            MoveBattleMenuCursor((-10, 0));
+
+        else if (direction == CursorMoveDirection.Right)
+            MoveBattleMenuCursor((10, 0));
+
+        else
+            throw new InvalidEnumArgumentException();
+    }
+
+    private void MoveBattleMenuCursor((int left, int top) offset)
+    {
+        // Check boundaries.
+        if (IsWithinBoundaries(offset) == false)
+            return;
+
+        // Clear cursor behind.
+        System.Console.SetCursorPosition(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
+        System.Console.Write(" ");
+
+        (int left, int top) newCursorPosition =
+            (_battleMenuCursorPositionLeft + offset.left, _battleMenuCursorPositionTop + offset.top);
+
+        // Write new cursor location.
+        System.Console.SetCursorPosition(newCursorPosition.left, newCursorPosition.top);
+        _battleMenuCursorPositionLeft = newCursorPosition.left;
+        _battleMenuCursorPositionTop = newCursorPosition.top;
+        System.Console.Write(">");
+    }
+
+    private bool IsWithinBoundaries((int left, int top) offset)
+    {
+        return _battleMenuCursorPositionTop + offset.top >= BattleMenuPositionTop + 1
+               && _battleMenuCursorPositionTop + offset.top <= BattleMenuPositionTop + 5
+               && _battleMenuCursorPositionLeft + offset.left <= BattleMenuPositionLeft + 11
+               && _battleMenuCursorPositionLeft + offset.left >= BattleMenuPositionLeft + 0;
+    }
+}
+
+public enum PlayerAction
+{
+    Attack,
+    Steal,
+    UseItem,
+    Defened,
+    Change
 }
