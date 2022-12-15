@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using static FF9.Console.KernalHelper;
+using static FF9.Console.KernelHelper;
 
 namespace FF9.Console;
 

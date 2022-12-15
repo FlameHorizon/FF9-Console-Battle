@@ -18,7 +18,7 @@ public class Game
     {
         { "Attack", PlayerAction.Attack },
         { "Steal", PlayerAction.Steal },
-        { "Defend", PlayerAction.Defened },
+        { "Defend", PlayerAction.Defend },
         { "Item", PlayerAction.UseItem },
         { "Change", PlayerAction.Change }
     };
@@ -58,9 +58,7 @@ public class Game
                 UpdateCurrentPlayerAction();
             }
             else if (ConsoleKey.Enter == keyPressed.Key)
-            {
                 ExecuteAction();
-            }
             else
                 System.Console.WriteLine();
         }
@@ -88,7 +86,7 @@ public class Game
             PlayerAction.Attack => "Player attacked another player",
             PlayerAction.Steal => "Player steals an item",
             PlayerAction.UseItem => "Player uses item",
-            PlayerAction.Defened => "Player defends",
+            PlayerAction.Defend => "Player defends",
             PlayerAction.Change => "Player changes",
             null => string.Empty,
             _ => throw new InvalidEnumArgumentException()
@@ -103,7 +101,6 @@ public class Game
         System.Console.SetCursorPosition(MessageLinePositionLeft, MessageLinePositionTop);
         System.Console.Write(msg);
     }
-
 
     private static bool ArrowKeyPressed(ConsoleKeyInfo keyPressed)
     {
@@ -177,13 +174,4 @@ public class Game
                && _battleMenuCursorPositionLeft + offset.left <= BattleMenuPositionLeft + 11
                && _battleMenuCursorPositionLeft + offset.left >= BattleMenuPositionLeft + 0;
     }
-}
-
-public enum PlayerAction
-{
-    Attack,
-    Steal,
-    UseItem,
-    Defened,
-    Change
 }

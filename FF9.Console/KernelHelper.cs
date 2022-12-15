@@ -3,7 +3,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-public class KernalHelper
+public static class KernelHelper
 {
     // https://stackoverflow.com/questions/12355378/read-from-location-on-console-c-sharp
     // https://stackoverflow.com/a/12366307/1983076 Simon Mourier
