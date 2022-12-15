@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using FF9.Console.Battle;
 
 namespace FF9.Console;
 
@@ -23,22 +24,26 @@ public class Game
         { "Change", PlayerAction.Change }
     };
 
+    private readonly BattleEngine _btlEngine = new();
+
+    public Game()
+    {
+        System.Console.CursorVisible = false;
+    }
 
     public void Start()
     {
-        System.Console.CursorVisible = false;
-
         System.Console.WriteLine("This is message line.");
 
         // Start drawing menu three lines below first line.
         System.Console.SetCursorPosition(0, 2);
-        System.Console.WriteLine("|---------|---------|");
-        System.Console.WriteLine("| Attack  | Defend  |");
-        System.Console.WriteLine("|---------|---------|");
-        System.Console.WriteLine("| Steal   |         |");
-        System.Console.WriteLine("|---------|---------|");
-        System.Console.WriteLine("| Item    | Change  |");
-        System.Console.WriteLine("|---------|---------|");
+        System.Console.WriteLine("|---------|---------|          ");
+        System.Console.WriteLine("| Attack  | Defend  |          |--------------------------|");
+        System.Console.WriteLine("|---------|---------|          |Name     |  HP| MP|  ATB  |");
+        System.Console.WriteLine("| Steal   |         |          | Zidane  | 105| 36|=======|");
+        System.Console.WriteLine("|---------|---------|          | Cinna   |  75| 32|=====  |");
+        System.Console.WriteLine("| Item    | Change  |          | Marcus  |  90| 22|====   |");
+        System.Console.WriteLine("|---------|---------|          | Blank   | 105| 24|==     |");
 
         SetBattleMenuCursor(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
 
@@ -64,44 +69,6 @@ public class Game
         }
     }
 
-    private void UpdateCurrentPlayerAction()
-    {
-        // Get line where currently cursor is to retrieve selected action name.
-        string line = ReadConsole.GetText(0, _battleMenuCursorPositionTop);
-
-        string actionName = line.Split("|")
-            .First(x => x.Contains('>'))
-            .Replace(">", string.Empty)
-            .Trim();
-
-        _currentPlayerAction = string.IsNullOrEmpty(actionName)
-            ? null
-            : _battleMenuPlayerAction[actionName];
-    }
-
-    private void ExecuteAction()
-    {
-        string msg = _currentPlayerAction switch
-        {
-            PlayerAction.Attack => "Player attacked another player",
-            PlayerAction.Steal => "Player steals an item",
-            PlayerAction.UseItem => "Player uses item",
-            PlayerAction.Defend => "Player defends",
-            PlayerAction.Change => "Player changes",
-            null => string.Empty,
-            _ => throw new InvalidEnumArgumentException()
-        };
-
-        WriteMessage(msg);
-    }
-
-    private static void WriteMessage(string msg)
-    {
-        ConsoleExtensions.ClearLine(MessageLinePositionTop);
-        System.Console.SetCursorPosition(MessageLinePositionLeft, MessageLinePositionTop);
-        System.Console.Write(msg);
-    }
-
     private static bool ArrowKeyPressed(ConsoleKeyInfo keyPressed)
     {
         return new[] { ConsoleKey.DownArrow, ConsoleKey.UpArrow, ConsoleKey.RightArrow, ConsoleKey.LeftArrow }
@@ -123,12 +90,46 @@ public class Game
             MoveBattleMenuCursor(CursorMoveDirection.Left);
     }
 
+    private void UpdateCurrentPlayerAction()
+    {
+        // Get line where currently cursor is to retrieve selected action name.
+        string line = ReadConsole.GetText(0, _battleMenuCursorPositionTop);
+
+        string actionName = line.Split("|")
+            .First(x => x.Contains('>'))
+            .Replace(">", string.Empty)
+            .Trim();
+
+        _currentPlayerAction = string.IsNullOrEmpty(actionName)
+            ? null
+            : _battleMenuPlayerAction[actionName];
+    }
+
+    private void ExecuteAction()
+    {
+        // To execute an action we need to know, who is going to execute it,
+        // against whom and what type of action it is.
+        PlayerAction? action = _currentPlayerAction;
+        var source = new PlayerUnit() { Name = "Zidane" };
+        var target = new OpponentUnit() { Name = "Masked Man" };
+
+        string msg = _btlEngine.ExecuteAction(action, source, target);
+        WriteMessage(msg);
+    }
+
     private void SetBattleMenuCursor(int left, int top)
     {
         System.Console.SetCursorPosition(left, top);
         System.Console.Write(">");
     }
 
+    private static void WriteMessage(string msg)
+    {
+        ConsoleExtensions.ClearLine(MessageLinePositionTop);
+        System.Console.SetCursorPosition(MessageLinePositionLeft, MessageLinePositionTop);
+        System.Console.Write(msg);
+    }
+    
     private void MoveBattleMenuCursor(CursorMoveDirection direction)
     {
         if (direction == CursorMoveDirection.Up)
