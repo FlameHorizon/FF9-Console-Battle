@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FF9.Console", "FF9.Console\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FF9.Console.Spectre", "FF9.Console.Spectre\FF9.Console.Spectre.csproj", "{0D1FA881-B196-4831-9B26-0518186BD731}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FF9.Tests", "FF9.Tests\FF9.Tests.csproj", "{A91CFB34-524E-43AF-B7BC-5E2F4A26E1B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{0D1FA881-B196-4831-9B26-0518186BD731}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D1FA881-B196-4831-9B26-0518186BD731}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D1FA881-B196-4831-9B26-0518186BD731}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A91CFB34-524E-43AF-B7BC-5E2F4A26E1B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A91CFB34-524E-43AF-B7BC-5E2F4A26E1B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A91CFB34-524E-43AF-B7BC-5E2F4A26E1B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A91CFB34-524E-43AF-B7BC-5E2F4A26E1B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
