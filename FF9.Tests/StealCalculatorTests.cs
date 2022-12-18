@@ -18,8 +18,8 @@ public class StealCalculatorTests
         
         Unit warrior = new UnitBuilder()
             .WithLv(1)
-            .WithStealRates(new[] { 255 })
-            .WithStealable(new List<Item>() { eqItem })
+            .WithStealable(new Item?[4] { null, null, null, eqItem })
+            .WithStealRates(new int[] { byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue })
             .Build();
 
         Mock<IRandomProvider> provider = new();

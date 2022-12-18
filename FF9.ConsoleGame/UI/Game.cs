@@ -130,10 +130,14 @@ public class Game
         Item? stolenItem = _btlEngine.LastStolenItem;
 
         string msg = stolenItem is not null 
-            ? $"{_btlEngine.Source} stole {stolenItem.Name} from {_btlEngine.Target}" 
+            ? $"{_btlEngine.Source.Name} stole {stolenItem.Name} from {_btlEngine.Target.Name}" 
             : "Couldn't steal an item";
         
         WriteMessage(msg);
+        
+        Thread.Sleep(1000);
+        _btlEngine.NextTurn();
+        WriteMessage($"{_btlEngine.Source.Name}'s turn.");
     }
 
     private void ExecuteDefendAction()

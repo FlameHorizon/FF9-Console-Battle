@@ -7,7 +7,7 @@ public class UnitBuilder
     private int _lv = 1;
     private int _spr;
     private List<Item>? _items;
-    private List<Item>? _stealable;
+    private Item?[]? _stealable;
     private int[]? _rates;
     private int _hp;
     private bool _isPlayer;
@@ -40,7 +40,7 @@ public class UnitBuilder
         return u;
     }
 
-    public UnitBuilder WithStealable(List<Item>? items)
+    public UnitBuilder WithStealable(Item?[]? items)
     {
         _stealable = items;
         return this;

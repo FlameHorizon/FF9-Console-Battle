@@ -37,7 +37,7 @@ public class Unit
     public bool IsPlayer { get; private set; }
     public int Spirit { get; } = 0;
     public int[]? StealableItemsRates { get; init; }
-    public List<Item> StealableItems { get; private set; }
+    public Item?[] StealableItems { get; private set; }
     public List<Item> Inventory { get; } = new();
     public bool InDefenceStance { get; private set; }
 
@@ -45,7 +45,7 @@ public class Unit
     private int _atk;
 
     public Unit(string name, int hp, int str, int agl, int defence, int level, bool isPlayer, int spr,
-        List<Item>? stealableItems, int[]? rates)
+        Item?[] stealableItems, int[]? rates)
     {
         Name = name;
         Hp = hp;
@@ -62,11 +62,15 @@ public class Unit
         _acc = (byte)(InitialAccValueAtLv1 + (3 * (Lv - 1)));
         Spirit = spr;
         if (rates != null) StealableItemsRates = rates;
-        StealableItems = stealableItems ?? new List<Item>();
+        StealableItems = stealableItems;
 
         _physicalDamageCalculator = new PhysicalDamageCalculator(new RandomProvider());
+        
+        
     }
 
+    public int StealableItemsCount => StealableItems.Count(i => i is not null);
+    
     public int CalculatePhysicalDamage(int damage, byte attackerHitRate)
     {
         return _physicalDamageCalculator.Calculate(damage, attackerHitRate, this);
@@ -104,16 +108,17 @@ public class Unit
 
     public Item? Steal(int slot)
     {
-        if (slot <= -1) 
+        if (slot is <= -1 or >= 4) 
             throw new ArgumentOutOfRangeException(nameof(slot), "Value must be in range 0 and 3");
 
-        if (StealableItems.Count == 0)
-        {
+        if (StealableItemsCount == 0)
             return null;
-        }
+
+        if (StealableItems[slot] is null)
+            return null;
         
-        Item item = StealableItems[slot];
-        StealableItems.Remove(item);
+        Item? item = StealableItems[slot];
+        StealableItems[slot] = null;
 
         return item;
     }

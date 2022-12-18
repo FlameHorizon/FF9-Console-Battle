@@ -176,7 +176,7 @@ public class BattleEngine
     }
 
     /// <summary>
-    /// This method allows unit to steal Target unit. If successfully, item is transferred to
+    /// This method allows unit to steal item from Target unit. If successfully, item is transferred to
     /// the inventory of stealer. Otherwise, turn passes.
     /// </summary>
     public void TurnSteal()
@@ -185,7 +185,7 @@ public class BattleEngine
 
         // Means, nothing got stolen.
         if (stolenItem is null)
-            return;
+            return; //CouldNotStealAnything
 
         Source.PutIntoInventory(stolenItem);
         LastStolenItem = stolenItem;
