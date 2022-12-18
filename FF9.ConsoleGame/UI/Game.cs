@@ -15,7 +15,7 @@ public class Game
 
     private int _battleMenuCursorPositionLeft = 1;
     private int _battleMenuCursorPositionTop = BattleMenuPositionTop + 1;
-    private PlayerAction? _currentPlayerAction = PlayerAction.Attack;
+    private BattleAction? _currentPlayerAction = BattleAction.Attack;
 
     private const int ZidaneHpStartLeft = 42;
     private const int ZidaneHpEndLeft = 46;
@@ -28,13 +28,13 @@ public class Game
     private const string EmptyLabel = "";
     private const string ChangeLabel = "Change";
 
-    private readonly Dictionary<string, PlayerAction> _battleMenuPlayerAction = new()
+    private readonly Dictionary<string, BattleAction> _battleMenuPlayerAction = new()
     {
-        { AttackLabel, PlayerAction.Attack },
-        { StealLabel, PlayerAction.Steal },
-        { DefendLabel, PlayerAction.Defend },
-        { ItemLabel, PlayerAction.UseItem },
-        { ChangeLabel, PlayerAction.Change }
+        { AttackLabel, BattleAction.Attack },
+        { StealLabel, BattleAction.Steal },
+        { DefendLabel, BattleAction.Defend },
+        { ItemLabel, BattleAction.UseItem },
+        { ChangeLabel, BattleAction.Change }
     };
 
     private readonly BattleEngine _btlEngine;
@@ -69,13 +69,14 @@ public class Game
 
         while (true)
         {
-            ConsoleKeyInfo keyPressed = Console.ReadKey(true);
-
-            if (keyPressed.Key == ConsoleKey.B)
+            if (_btlEngine.IsTurnAi)
             {
-                Console.WriteLine("Wrote B, exiting program.");
-                break;
+                BattleAction action = _btlEngine.AiAction();
+                HandleAction(action);
+                continue;
             }
+            
+            ConsoleKeyInfo keyPressed = Console.ReadKey(true);
 
             if (ArrowKeyPressed(keyPressed))
             {
@@ -83,33 +84,34 @@ public class Game
                 UpdateCurrentPlayerAction();
             }
             else if (ConsoleKey.Enter == keyPressed.Key)
-            {
-                switch (_currentPlayerAction)
-                {
-                    case PlayerAction.Attack:
-                        ExecuteAttackAction();
-                        break;
-                    case PlayerAction.Defend:
-                        ExecuteDefendAction();
-                        break;
-                    case PlayerAction.Steal:
-                        ExecuteStealAction();
-                        break;
-                    case PlayerAction.UseItem:
-                        break;
-                    case PlayerAction.Change:
-                        break;
-                    case null:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
+                HandleAction(_currentPlayerAction);
 
             if (_btlEngine.EnemyDefeated)
-            {
                 break;
-            }
+        }
+    }
+
+    private void HandleAction(BattleAction? action)
+    {
+        switch (action)
+        {
+            case BattleAction.Attack:
+                ExecuteAttackAction();
+                break;
+            case BattleAction.Defend:
+                ExecuteDefendAction();
+                break;
+            case BattleAction.Steal:
+                ExecuteStealAction();
+                break;
+            case BattleAction.UseItem:
+                break;
+            case BattleAction.Change:
+                break;
+            case null:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using FF9.ConsoleGame.Battle.Interfaces;
+using FF9.ConsoleGame.UI;
 
 namespace FF9.ConsoleGame.Battle;
 
@@ -94,7 +95,7 @@ public class BattleEngine
 
     public Item? LastStolenItem { get; private set; }
     public bool IsTurnAi => Source.IsPlayer == false;
-
+    
     public void TurnAttack(Unit target) => TurnAttack(Source, target);
 
     public void TurnAttack(Unit source, Unit target)
@@ -140,14 +141,8 @@ public class BattleEngine
         LastStolenItem = stolenItem;
     }
 
-    public ActionType AiMove()
+    public BattleAction AiAction()
     {
-        TurnAttack(Target);
-        return ActionType.Attack;
+        return BattleAction.Attack;
     }
-}
-
-public enum ActionType
-{
-    Attack = 0
 }

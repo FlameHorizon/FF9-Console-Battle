@@ -174,11 +174,10 @@ public class BattleEngineTests
     }
 
     [Fact]
-    public void AiMove_TakesMove_WhenItsTurn()
+    public void AiAction_TakesMove_WhenItsTurn()
     {
-        var be = new BattleEngine(GetAiUnits(), GetAlwaysHitTenCalculator());
+        var be = new BattleEngine(GetAiUnits());
 
-        be.AiMove().Should().Be(ActionType.Attack);
-        be.LastDamageValue.Should().Be(10);
+        be.AiAction().Should().Be(BattleAction.Attack);
     }
 }

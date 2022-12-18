@@ -1,6 +1,6 @@
-﻿namespace FF9.ConsoleGame.UI;
+﻿namespace FF9.ConsoleGame;
 
-public enum PlayerAction
+public enum BattleAction
 {
     Attack,
     Steal,
