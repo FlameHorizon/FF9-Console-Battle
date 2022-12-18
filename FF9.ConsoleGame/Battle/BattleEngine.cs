@@ -93,6 +93,7 @@ public class BattleEngine
     }
 
     public Item? LastStolenItem { get; private set; }
+    public bool IsTurnAi => Source.IsPlayer == false;
 
     public void TurnAttack(Unit target) => TurnAttack(Source, target);
 
@@ -138,4 +139,15 @@ public class BattleEngine
         Source.PutIntoInventory(stolenItem);
         LastStolenItem = stolenItem;
     }
+
+    public ActionType AiMove()
+    {
+        TurnAttack(Target);
+        return ActionType.Attack;
+    }
+}
+
+public enum ActionType
+{
+    Attack = 0
 }

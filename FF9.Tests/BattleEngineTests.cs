@@ -155,4 +155,30 @@ public class BattleEngineTests
         var e = new BattleEngine(player, enemy);
         e.EnemyDefeated.Should().BeTrue();
     }
+
+    [Fact]
+    public void IsTurnAi_IsTrue_WhenAiIsNowTakingItsTurn()
+    {
+        var be = new BattleEngine(GetAiUnits());
+
+        be.IsTurnAi.Should().BeTrue();
+    }
+    
+    private static IEnumerable<Unit> GetAiUnits()
+    {
+        return new[]
+        {
+            new UnitBuilder().AsEnemy().Build(),
+            new UnitBuilder().AsEnemy().Build()
+        };
+    }
+
+    [Fact]
+    public void AiMove_TakesMove_WhenItsTurn()
+    {
+        var be = new BattleEngine(GetAiUnits(), GetAlwaysHitTenCalculator());
+
+        be.AiMove().Should().Be(ActionType.Attack);
+        be.LastDamageValue.Should().Be(10);
+    }
 }
