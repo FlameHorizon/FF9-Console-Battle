@@ -1,4 +1,4 @@
-﻿namespace FF9.Console;
+﻿namespace FF9.ConsoleGame;
 
 public interface IRandomProvider
 {

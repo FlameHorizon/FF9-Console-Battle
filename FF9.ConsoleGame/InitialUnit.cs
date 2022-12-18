@@ -1,6 +1,6 @@
-﻿using FF9.Console.Battle;
+﻿using FF9.ConsoleGame.Battle;
 
-namespace FF9.Console;
+namespace FF9.ConsoleGame;
 
 public static class InitialUnit
 {

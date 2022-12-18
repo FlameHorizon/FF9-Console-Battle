@@ -1,7 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using FF9.Console;
-using FF9.Console.Battle;
+using FF9.ConsoleGame;
+using FF9.ConsoleGame.Battle;
+using FF9.ConsoleGame.UI;
 
 var p = InitialUnit.Warrior("Whey", isPlayer:true);
 

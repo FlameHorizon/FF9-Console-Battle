@@ -1,7 +1,6 @@
-﻿namespace FF9.Console;
+﻿using System.Runtime.InteropServices;
 
-using System;
-using System.Runtime.InteropServices;
+namespace FF9.ConsoleGame.UI;
 
 public static class KernelHelper
 {

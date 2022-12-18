@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
+using FF9.ConsoleGame.Battle.Interfaces;
 
-namespace FF9.Console.Battle;
+namespace FF9.ConsoleGame.Battle;
 
 public class BattleEngine
 {

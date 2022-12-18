@@ -1,4 +1,4 @@
-﻿namespace FF9.Console.Battle;
+﻿namespace FF9.ConsoleGame.Battle.Interfaces;
 
 public interface IStealCalculator
 {

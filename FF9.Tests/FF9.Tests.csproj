@@ -24,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\FF9.Console\FF9.Console.csproj" />
+      <ProjectReference Include="..\FF9.ConsoleGame\FF9.ConsoleGame.csproj" />
     </ItemGroup>
 
 </Project>

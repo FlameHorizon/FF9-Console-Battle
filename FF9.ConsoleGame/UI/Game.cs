@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
-using FF9.Console.Battle;
+using FF9.ConsoleGame.Battle;
 
-namespace FF9.Console;
+namespace FF9.ConsoleGame.UI;
 
 public class Game
 {
@@ -42,12 +42,12 @@ public class Game
     public Game(BattleEngine btlEngine)
     {
         _btlEngine = btlEngine;
-        System.Console.CursorVisible = false;
+        Console.CursorVisible = false;
     }
 
     public void Start()
     {
-        System.Console.WriteLine(" ");
+        Console.WriteLine(" ");
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
 
         Unit playerUnit = _btlEngine.UnitsInBattle.First(u => u.IsPlayer);
@@ -55,25 +55,25 @@ public class Game
         string playerHpWithPadding = playerUnit.Hp.ToString().PadLeft(3);
 
         // Start drawing menu three lines below first line.
-        System.Console.SetCursorPosition(0, 2);
-        System.Console.WriteLine("|---------|---------|          ");
-        System.Console.WriteLine("| {0}| {1}|          |------------------|", AttackLabel.PadRight(8), DefendLabel.PadRight(8));
-        System.Console.WriteLine("|---------|---------|          |Name     |  HP| MP|");
-        System.Console.WriteLine("| {0}| {1}|          | {2} | {3}|  0|", StealLabel.PadRight(8), EmptyLabel.PadRight(8) ,playerNameWithPadding,
+        Console.SetCursorPosition(0, 2);
+        Console.WriteLine("|---------|---------|          ");
+        Console.WriteLine("| {0}| {1}|          |------------------|", AttackLabel.PadRight(8), DefendLabel.PadRight(8));
+        Console.WriteLine("|---------|---------|          |Name     |  HP| MP|");
+        Console.WriteLine("| {0}| {1}|          | {2} | {3}|  0|", StealLabel.PadRight(8), EmptyLabel.PadRight(8) ,playerNameWithPadding,
             playerHpWithPadding);
-        System.Console.WriteLine("|---------|---------|          |                  |");
-        System.Console.WriteLine("| {0}| {1}|          |                  |", ItemLabel.PadRight(8), ChangeLabel.PadRight(8));
-        System.Console.WriteLine("|---------|---------|          |                  |");
+        Console.WriteLine("|---------|---------|          |                  |");
+        Console.WriteLine("| {0}| {1}|          |                  |", ItemLabel.PadRight(8), ChangeLabel.PadRight(8));
+        Console.WriteLine("|---------|---------|          |                  |");
 
         SetBattleMenuCursor(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
 
         while (true)
         {
-            ConsoleKeyInfo keyPressed = System.Console.ReadKey(true);
+            ConsoleKeyInfo keyPressed = Console.ReadKey(true);
 
             if (keyPressed.Key == ConsoleKey.B)
             {
-                System.Console.WriteLine("Wrote B, exiting program.");
+                Console.WriteLine("Wrote B, exiting program.");
                 break;
             }
 
@@ -119,15 +119,9 @@ public class Game
 
         Item? stolenItem = _btlEngine.LastStolenItem;
 
-        string msg;
-        if (stolenItem is not null)
-        {
-            msg = $"{_btlEngine.Source} stole {stolenItem.Name} from {_btlEngine.Target}";
-        }
-        else
-        {
-            msg = "Couldn't steal an item";
-        }
+        string msg = stolenItem is not null 
+            ? $"{_btlEngine.Source} stole {stolenItem.Name} from {_btlEngine.Target}" 
+            : "Couldn't steal an item";
         
         WriteMessage(msg);
     }
@@ -193,18 +187,18 @@ public class Game
     {
         for (int left = ZidaneHpStartLeft; left < ZidaneHpEndLeft; left++)
         {
-            System.Console.SetCursorPosition(left, ZidaneTop);
-            System.Console.Write(' ');
+            Console.SetCursorPosition(left, ZidaneTop);
+            Console.Write(' ');
         }
 
         char[] split = target.Hp.ToString().ToCharArray();
 
-        int i = 0;
+        var i = 0;
         // Clear current value of Zidane's health.
         for (int left = ZidaneHpStartLeft + (4 - split.Length); left < ZidaneHpEndLeft; left++)
         {
-            System.Console.SetCursorPosition(left, ZidaneTop);
-            System.Console.Write(split[i]);
+            Console.SetCursorPosition(left, ZidaneTop);
+            Console.Write(split[i]);
 
             i++;
         }
@@ -234,7 +228,7 @@ public class Game
     private void UpdateCurrentPlayerAction()
     {
         // Get line where currently cursor is to retrieve selected action name.
-        string line = ReadConsole.GetText(0, _battleMenuCursorPositionTop);
+        string line = ConsoleExtensions.GetText(0, _battleMenuCursorPositionTop);
 
         string actionName = line.Split("|")
             .First(x => x.Contains('>'))
@@ -248,15 +242,15 @@ public class Game
 
     private void SetBattleMenuCursor(int left, int top)
     {
-        System.Console.SetCursorPosition(left, top);
-        System.Console.Write(">");
+        Console.SetCursorPosition(left, top);
+        Console.Write(">");
     }
 
     private static void WriteMessage(string msg)
     {
         ConsoleExtensions.ClearLine(MessageLinePositionTop);
-        System.Console.SetCursorPosition(MessageLinePositionLeft, MessageLinePositionTop);
-        System.Console.Write(msg);
+        Console.SetCursorPosition(MessageLinePositionLeft, MessageLinePositionTop);
+        Console.Write(msg);
     }
 
     private void MoveBattleMenuCursor(CursorMoveDirection direction)
@@ -284,17 +278,17 @@ public class Game
             return;
 
         // Clear cursor behind.
-        System.Console.SetCursorPosition(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
-        System.Console.Write(" ");
+        Console.SetCursorPosition(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
+        Console.Write(" ");
 
         (int left, int top) newCursorPosition =
             (_battleMenuCursorPositionLeft + offset.left, _battleMenuCursorPositionTop + offset.top);
 
         // Write new cursor location.
-        System.Console.SetCursorPosition(newCursorPosition.left, newCursorPosition.top);
+        Console.SetCursorPosition(newCursorPosition.left, newCursorPosition.top);
         _battleMenuCursorPositionLeft = newCursorPosition.left;
         _battleMenuCursorPositionTop = newCursorPosition.top;
-        System.Console.Write(">");
+        Console.Write(">");
     }
 
     private bool IsWithinBoundaries((int left, int top) offset)

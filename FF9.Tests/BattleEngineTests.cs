@@ -1,5 +1,6 @@
-using FF9.Console;
-using FF9.Console.Battle;
+using FF9.ConsoleGame;
+using FF9.ConsoleGame.Battle;
+using FF9.ConsoleGame.Battle.Interfaces;
 using FluentAssertions;
 using Moq;
 

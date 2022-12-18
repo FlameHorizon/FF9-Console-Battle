@@ -1,4 +1,6 @@
-﻿namespace FF9.Console.Battle;
+﻿using FF9.ConsoleGame.Battle.Interfaces;
+
+namespace FF9.ConsoleGame.Battle;
 
 public class StealCalculator : IStealCalculator
 {

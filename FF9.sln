@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FF9.Console", "FF9.Console\FF9.Console.csproj", "{8458D676-E2D3-41A8-A657-5944253FAA04}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FF9.ConsoleGame", "FF9.ConsoleGame\FF9.ConsoleGame.csproj", "{8458D676-E2D3-41A8-A657-5944253FAA04}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FF9.Console.Spectre", "FF9.Console.Spectre\FF9.Console.Spectre.csproj", "{0D1FA881-B196-4831-9B26-0518186BD731}"
 EndProject
