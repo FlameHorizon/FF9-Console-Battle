@@ -109,6 +109,9 @@ public class BattleEngine
     /// <summary>
     /// Returns Unit which is a target of an action taken by Source.
     /// </summary>
+    ///
+    /// TODO: This worked well when I had one opponent and one ally. Right now it's different and it causes bugs.
+    /// It would be good to implement targeting mechanism next.
     public Unit Target => _queue.Skip(1).First();
 
     public bool EnemyDefeated

@@ -8,6 +8,7 @@ public class Unit
     public string Name { get; init; }
 
     public int Hp { get; private set; }
+    public int Mp { get; private set; }
 
     // Base stats
     private int Str { get; init; }
@@ -44,11 +45,12 @@ public class Unit
     private IPhysicalDamageCalculator _physicalDamageCalculator;
     private int _atk;
 
-    public Unit(string name, int hp, int str, int agl, int defence, int level, bool isPlayer, int spr,
+    public Unit(string name, int hp, int mp, int str, int agl, int defence, int level, bool isPlayer, int spr,
         Item?[] stealableItems, int[]? rates)
     {
         Name = name;
         Hp = hp;
+        Mp = mp;
         Str = str;
         Agl = agl;
         Defence = defence;

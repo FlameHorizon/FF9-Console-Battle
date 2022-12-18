@@ -14,6 +14,7 @@ public class UnitBuilder
     private int _agl;
     private int _str;
     private string _name = string.Empty;
+    private int _mp;
 
     public UnitBuilder WithLv(int value)
     {
@@ -35,7 +36,7 @@ public class UnitBuilder
 
     public Unit Build()
     {
-        Unit u = new(_name, _hp, _str, _agl, 0, _lv, _isPlayer, _spr, _stealable, _rates);
+        Unit u = new(_name, _hp, _mp, _str, _agl, 0, _lv, _isPlayer, _spr, _stealable, _rates);
         _items?.ForEach(i => u.PutIntoInventory(i));
         return u;
     }
@@ -85,6 +86,12 @@ public class UnitBuilder
     public UnitBuilder WithName(string value)
     {
         _name = value;
+        return this;
+    }
+
+    public UnitBuilder WithMp(int value)
+    {
+        _mp = value;
         return this;
     }
 }

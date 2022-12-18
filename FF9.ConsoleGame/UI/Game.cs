@@ -17,10 +17,29 @@ public class Game
     private int _battleMenuCursorPositionTop = BattleMenuPositionTop + 1;
     private BattleAction? _currentPlayerAction = BattleAction.Attack;
 
-    private const int ZidaneHpStartLeft = 42;
-    private const int ZidaneHpEndLeft = 46;
-    private const int ZidaneTop = 3 + SpaceBetweenMessageLineAndBattleMenu;
+    private const int SpaceBetweenEachCharacter = 1;
 
+    private const int FirstHpStartLeft = 43;
+    private const int FirstHpEndLeft = 47;
+    private const int FirstTop = 3 + SpaceBetweenMessageLineAndBattleMenu;
+
+    private const int SecondHpStartLeft = 43;
+    private const int SecondHpEndLeft = 47;
+    private const int SecondTop = FirstTop + SpaceBetweenEachCharacter;
+    
+    private const int ThirdHpStartLeft = 43;
+    private const int ThirdHpEndLeft = 47;
+    private const int ThirdTop = SecondTop + SpaceBetweenEachCharacter;
+    
+    private const int ForthHpStartLeft = 43;
+    private const int ForthHpEndLeft = 47;
+    private const int ForthTop = ThirdTop + SpaceBetweenEachCharacter;
+    
+    private const int TurnIndicatorLeft = 32;
+    private const int FirstTurnIndicatorTop = FirstTop;
+
+    private (int left, int top) _currentTurnIndicatorPosition;
+    
     private const string AttackLabel = "Attack";
     private const string StealLabel = "Steal";
     private const string ItemLabel = "Item";
@@ -37,6 +56,8 @@ public class Game
         { ChangeLabel, BattleAction.Change }
     };
 
+    private IEnumerable<Unit> _playerParty;
+
     private readonly BattleEngine _btlEngine;
 
     public Game(BattleEngine btlEngine)
@@ -50,22 +71,11 @@ public class Game
         Console.WriteLine(" ");
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
 
-        Unit playerUnit = _btlEngine.UnitsInBattle.First(u => u.IsPlayer);
-        string playerNameWithPadding = playerUnit.Name.PadRight(7);
-        string playerHpWithPadding = playerUnit.Hp.ToString().PadLeft(3);
-
-        // Start drawing menu three lines below first line.
-        Console.SetCursorPosition(0, 2);
-        Console.WriteLine("|---------|---------|          ");
-        Console.WriteLine("| {0}| {1}|          |------------------|", AttackLabel.PadRight(8), DefendLabel.PadRight(8));
-        Console.WriteLine("|---------|---------|          |Name     |  HP| MP|");
-        Console.WriteLine("| {0}| {1}|          | {2} | {3}|  0|", StealLabel.PadRight(8), EmptyLabel.PadRight(8) ,playerNameWithPadding, playerHpWithPadding);
-        Console.WriteLine("|---------|---------|          |                  |");
-        Console.WriteLine("| {0}| {1}|          |                  |", ItemLabel.PadRight(8), ChangeLabel.PadRight(8));
-        Console.WriteLine("|---------|---------|          |                  |");
+        DrawBattleMenuWithCharactersInfo();
 
         SetBattleMenuCursor(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
-
+        UpdatePlayerTurnIndicator();
+        
         while (true)
         {
             if (_btlEngine.IsTurnAi)
@@ -80,29 +90,84 @@ public class Game
                 break;
             }
             
+            
             ConsoleKeyInfo keyPressed = Console.ReadKey(true);
-
+            
             if (ArrowKeyPressed(keyPressed))
             {
                 HandleArrowKey(keyPressed);
                 UpdateCurrentPlayerAction();
             }
             else if (ConsoleKey.Enter == keyPressed.Key)
+            {
                 HandleAction(_currentPlayerAction);
+            }
 
             if (_btlEngine.EnemyDefeated)
             {
                 WriteMessage("Enemy party has been defeated.");
                 break;
             }
-
         }
+    }
+
+    private void DrawBattleMenuWithCharactersInfo()
+    {
+        _playerParty = _btlEngine.UnitsInBattle.Where(u => u.IsPlayer).ToList();
+        Unit first = _playerParty.First();
+        Unit second = _playerParty.Skip(1).First();
+        Unit third = _playerParty.Skip(2).First();
+        Unit forth = _playerParty.Skip(3).First();
+        
+        // Start drawing menu three lines below first line.
+        Console.SetCursorPosition(0, 2);
+        Console.WriteLine("|---------|---------|          ");
+        Console.WriteLine("| {0}| {1}|          |--------------------|", AttackLabel.PadRight(8), DefendLabel.PadRight(8));
+        Console.WriteLine("|---------|---------|          |Name     |   HP|  MP|");
+        Console.WriteLine("| {0}| {1}|          | {2} | {3}| {4}|", StealLabel.PadRight(8), EmptyLabel.PadRight(8),
+            first.Name.PadRight(7), first.Hp.ToString().PadLeft(4), first.Mp.ToString().PadLeft(3));
+        Console.WriteLine("|---------|---------|          | {0} | {1}| {2}|", second.Name.PadRight(7),
+            second.Hp.ToString().PadLeft(4), second.Mp.ToString().PadLeft(3));
+        Console.WriteLine("| {0}| {1}|          | {2} | {3}| {4}|", ItemLabel.PadRight(8), ChangeLabel.PadRight(8),
+            third.Name.PadRight(7), third.Hp.ToString().PadLeft(4), third.Mp.ToString().PadLeft(3));
+        Console.WriteLine("|---------|---------|          | {0} | {1}| {2}|", forth.Name.PadRight(7),
+            forth.Hp.ToString().PadLeft(4), forth.Mp.ToString().PadLeft(3));
+    }
+
+    private void UpdatePlayerTurnIndicator()
+    {
+        if (_btlEngine.Source.IsPlayer == false)
+        {
+            return;
+        }
+        
+        // Erase previous turn indicator
+        if (_currentTurnIndicatorPosition != (0, 0))
+        {
+            Console.SetCursorPosition(_currentTurnIndicatorPosition.left, _currentTurnIndicatorPosition.top);
+            Console.Write(" ");
+        }
+        
+        Console.SetCursorPosition(0, ForthTop + 1);
+        // Find top position of a player, which is now taking turn on the console.
+        string lookFor = " " +_btlEngine.Source.Name;
+        var coords = ConsoleExtensions.IndexOfInConsole(lookFor);
+        
+        _currentTurnIndicatorPosition = (TurnIndicatorLeft, coords.First().Y);
+        DrawTurnIndicator(TurnIndicatorLeft, coords.First().Y);
+    }
+    
+    private void DrawTurnIndicator(int left, int top)
+    {
+        Console.SetCursorPosition(left, top);
+        Console.Write("*");
     }
 
     private void HandleAction(BattleAction? action)
     {
         switch (action)
         {
+            
             case BattleAction.Attack:
                 ExecuteAttackAction();
                 break;
@@ -154,12 +219,27 @@ public class Game
 
     private void ExecuteAttackAction()
     {
-        Unit target = _btlEngine.Target;
+        Unit target;
+        if (_btlEngine.Source.IsPlayer)
+        {
+            target = _btlEngine.UnitsInBattle.First(u => u.IsPlayer == false);
+        }
+        else
+        {
+            IEnumerable<Unit> list = _btlEngine.UnitsInBattle.Where(u => u.IsPlayer);
+            int rand = Random.Shared.Next(1, list.Count() + 1);
+            target = list.Skip(rand - 1).First();
+        }
+        
         _btlEngine.TurnAttack(target);
 
         if (target.IsPlayer)
         {
-            UpdatePlayerHealthOnConsole(target);
+            UpdatePlayerHealthOnConsole(
+                _playerParty.First(), 
+                _playerParty.Skip(1).First(),
+                _playerParty.Skip(2).First(),
+                _playerParty.Skip(3).First());
         }
 
         string msg;
@@ -186,27 +266,87 @@ public class Game
 
         Thread.Sleep(1000);
         _btlEngine.NextTurn();
+        UpdatePlayerTurnIndicator();
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
     }
 
-    private void UpdatePlayerHealthOnConsole(Unit target)
+    private void UpdatePlayerHealthOnConsole(Unit first, Unit second, Unit third, Unit forth)
     {
-        for (int left = ZidaneHpStartLeft; left < ZidaneHpEndLeft; left++)
+        for (int left = FirstHpStartLeft; left < FirstHpEndLeft; left++)
         {
-            Console.SetCursorPosition(left, ZidaneTop);
+            Console.SetCursorPosition(left, FirstTop);
             Console.Write(' ');
         }
 
-        char[] split = target.Hp.ToString().ToCharArray();
+        char[] split = first.Hp.ToString().ToCharArray();
 
         var i = 0;
         // Clear current value of Zidane's health.
-        for (int left = ZidaneHpStartLeft + (4 - split.Length); left < ZidaneHpEndLeft; left++)
+        for (int left = FirstHpStartLeft + (4 - split.Length); left < FirstHpEndLeft; left++)
         {
-            Console.SetCursorPosition(left, ZidaneTop);
+            Console.SetCursorPosition(left, FirstTop);
             Console.Write(split[i]);
 
             i++;
+        }
+        // 
+        
+        for (int left = SecondHpStartLeft; left < SecondHpEndLeft; left++)
+        {
+            Console.SetCursorPosition(left, SecondTop);
+            Console.Write(' ');
+        }
+
+        char[] split2 = second.Hp.ToString().ToCharArray();
+
+        var i2 = 0;
+        // Clear current value of Zidane's health.
+        for (int left = SecondHpStartLeft + (4 - split2.Length); left < SecondHpEndLeft; left++)
+        {
+            Console.SetCursorPosition(left, SecondTop);
+            Console.Write(split2[i2]);
+
+            i2++;
+        }
+        
+        //
+        
+        for (int left = ThirdHpStartLeft; left < ThirdHpEndLeft; left++)
+        {
+            Console.SetCursorPosition(left, ThirdTop);
+            Console.Write(' ');
+        }
+
+        char[] split3 = third.Hp.ToString().ToCharArray();
+
+        var i3 = 0;
+        // Clear current value of Zidane's health.
+        for (int left = ThirdHpStartLeft + (4 - split3.Length); left < ThirdHpEndLeft; left++)
+        {
+            Console.SetCursorPosition(left, ThirdTop);
+            Console.Write(split3[i3]);
+
+            i3++;
+        }
+        
+        //
+        
+        for (int left = ForthHpStartLeft; left < ForthHpEndLeft; left++)
+        {
+            Console.SetCursorPosition(left, ForthTop);
+            Console.Write(' ');
+        }
+
+        char[] split4 = forth.Hp.ToString().ToCharArray();
+
+        var i4 = 0;
+        // Clear current value of Zidane's health.
+        for (int left = ForthHpStartLeft + (4 - split4.Length); left < ForthHpEndLeft; left++)
+        {
+            Console.SetCursorPosition(left, ForthTop);
+            Console.Write(split4[i4]);
+
+            i4++;
         }
     }
 
