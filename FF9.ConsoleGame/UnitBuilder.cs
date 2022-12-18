@@ -11,6 +11,7 @@ public class UnitBuilder
     private int[]? _rates;
     private int _hp;
     private bool _isPlayer;
+    private int _agl;
 
     public UnitBuilder WithLv(int value)
     {
@@ -32,7 +33,7 @@ public class UnitBuilder
 
     public Unit Build()
     {
-        Unit u = new(string.Empty, _hp, 0, 0, 0, _lv, _isPlayer, _spr, _stealable, _rates);
+        Unit u = new(string.Empty, _hp, 0, _agl, 0, _lv, _isPlayer, _spr, _stealable, _rates);
         _items?.ForEach(i => u.PutIntoInventory(i));
         return u;
     }
@@ -64,6 +65,12 @@ public class UnitBuilder
     public UnitBuilder AsPlayer()
     {
         _isPlayer = true;
+        return this;
+    }
+
+    public UnitBuilder WithAgl(int value)
+    {
+        _agl = value;
         return this;
     }
 }

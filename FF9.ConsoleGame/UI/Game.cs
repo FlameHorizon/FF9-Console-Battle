@@ -73,7 +73,6 @@ public class Game
             {
                 BattleAction action = _btlEngine.AiAction();
                 HandleAction(action);
-                continue;
             }
             
             ConsoleKeyInfo keyPressed = Console.ReadKey(true);

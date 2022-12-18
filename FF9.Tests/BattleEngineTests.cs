@@ -166,12 +166,21 @@ public class BattleEngineTests
     
     private static IEnumerable<Unit> GetAiUnits()
     {
+        
         return new[]
         {
             new UnitBuilder().AsEnemy().Build(),
             new UnitBuilder().AsEnemy().Build()
         };
     }
+    
+    private static IEnumerable<Unit> GetAiUnits(int count)
+    {
+        return Enumerable
+            .Range(0, count)
+            .Select(_ => new UnitBuilder().AsEnemy().Build());
+    }
+
 
     [Fact]
     public void AiAction_TakesMove_WhenItsTurn()
@@ -179,5 +188,69 @@ public class BattleEngineTests
         var be = new BattleEngine(GetAiUnits());
 
         be.AiAction().Should().Be(BattleAction.Attack);
+    }
+
+    [Fact]
+    public void Init_Accepts_UpToFourPartyMembers()
+    {
+        IEnumerable<Unit> playerParty = new[]
+        {
+            new UnitBuilder().AsPlayer().WithAgl(10).Build()
+        };
+
+        IEnumerable<Unit> enemyParty = new[]
+        {
+            new UnitBuilder().AsEnemy().Build()
+        };
+
+        Unit highestAglPlayer = playerParty.MaxBy(p => p.Agl);
+        Unit highestAglEnemy = enemyParty.MaxBy(e => e.Agl);
+        IEnumerable<Unit> orderByAgl = new[]
+        {
+            highestAglPlayer, 
+            highestAglEnemy
+        }.OrderByDescending(u => u.Agl);
+
+        var be = new BattleEngine(playerParty, enemyParty);
+        
+        be.UnitsInBattle.Should().HaveCount(2);
+        be.Queue.First().Should().Be(orderByAgl.First());
+        be.Queue.Skip(1).First().Should().Be(orderByAgl.Skip(1).First());
+
+    }
+
+    private IEnumerable<Unit> GetPlayerParty(int count)
+    {
+        return Enumerable
+            .Range(0, count)
+            .Select(_ => new UnitBuilder().Build());
+    }
+    
+    [Fact]
+    public void PlayerDefeated_IsTrue_WhenPlayerPartyIsDead()
+    {
+        IEnumerable<Unit> playerParty = new[]
+        {
+            new UnitBuilder().AsPlayer().WithHp(0).Build(),
+            new UnitBuilder().AsPlayer().WithHp(0).Build(),
+        };
+        IEnumerable<Unit> enemyParty = GetAiUnits(1);
+
+        var e = new BattleEngine(playerParty, enemyParty);
+        e.PlayerDefeated.Should().BeTrue();
+    }
+    
+    [Fact]
+    public void PlayerDefeated_IsFalse_WhenPlayerPartyIsNotDead()
+    {
+        IEnumerable<Unit> playerParty = new[]
+        {
+            new UnitBuilder().AsPlayer().WithHp(0).Build(),
+            new UnitBuilder().AsPlayer().WithHp(1).Build(),
+        };
+        IEnumerable<Unit> enemyParty = GetAiUnits(1);
+
+        var e = new BattleEngine(playerParty, enemyParty);
+        e.PlayerDefeated.Should().BeFalse();
     }
 }

@@ -1,23 +1,44 @@
-﻿using System.ComponentModel;
-using FF9.ConsoleGame.Battle.Interfaces;
-using FF9.ConsoleGame.UI;
+﻿using FF9.ConsoleGame.Battle.Interfaces;
 
 namespace FF9.ConsoleGame.Battle;
 
 public class BattleEngine
 {
+    private readonly IEnumerable<Unit> _playerUnits;
+    private readonly IEnumerable<Unit> _enemyUnits;
     private readonly Unit _unit1;
     private readonly Unit _unit2;
     private readonly Queue<Unit> _queue = new();
     private readonly IPhysicalDamageCalculator _physicalDamageCalc;
     private readonly IStealCalculator _stealCalculator;
+    private readonly List<Unit> _unitsInBattle;
 
     public int LastDamageValue { get; private set; }
-    public IEnumerable<Unit> UnitsInBattle { get; init; }
+
+    public IEnumerable<Unit> UnitsInBattle
+    {
+        get => _unitsInBattle;
+        private init => _unitsInBattle = value.ToList();
+    }
 
     public BattleEngine(IEnumerable<Unit> units)
         : this(units.First(), units.Skip(1).First())
     {
+    }
+
+    public BattleEngine(IEnumerable<Unit> playerUnits, IEnumerable<Unit> enemyUnits)
+    {
+        _playerUnits = playerUnits;
+        _enemyUnits = enemyUnits;
+        
+        _unitsInBattle = new List<Unit>();
+        _unitsInBattle.AddRange(_playerUnits);
+        _unitsInBattle.AddRange(_enemyUnits);
+
+        _physicalDamageCalc = new PhysicalDamageCalculator(new RandomProvider());
+        _stealCalculator = new StealCalculator();
+        
+        InitializeQueue();
     }
 
     public BattleEngine(Unit unit1, Unit unit2)
@@ -95,7 +116,17 @@ public class BattleEngine
 
     public Item? LastStolenItem { get; private set; }
     public bool IsTurnAi => Source.IsPlayer == false;
-    
+
+    public bool PlayerDefeated
+    {
+        get
+        {
+            return UnitsInBattle
+                .Where(u => u.IsPlayer)
+                .All(u => u.IsAlive == false);
+        }
+    }
+
     public void TurnAttack(Unit target) => TurnAttack(Source, target);
 
     public void TurnAttack(Unit source, Unit target)
