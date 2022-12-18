@@ -3,11 +3,11 @@
 using FF9.Console;
 using FF9.Console.Battle;
 
-var p = new Unit("Zidane", 105, 12, 0, 6);
-var o = new Unit("Masked Man", 188, 8, 0, 10);
+var p = InitialUnit.Warrior("Whey", isPlayer:true);
+
+var o = InitialUnit.Thief("Goblin");
 
 var btlEngine = new BattleEngine(p, o);
 
 var game = new Game(btlEngine);
 game.Start();
-

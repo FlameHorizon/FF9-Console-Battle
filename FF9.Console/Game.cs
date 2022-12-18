@@ -21,13 +21,20 @@ public class Game
     private const int ZidaneHpEndLeft = 46;
     private const int ZidaneTop = 3 + SpaceBetweenMessageLineAndBattleMenu;
 
+    private const string AttackLabel = "Attack";
+    private const string StealLabel = "Steal";
+    private const string ItemLabel = "Item";
+    private const string DefendLabel = "Defend";
+    private const string EmptyLabel = "";
+    private const string ChangeLabel = "Change";
+
     private readonly Dictionary<string, PlayerAction> _battleMenuPlayerAction = new()
     {
-        { "Attack", PlayerAction.Attack },
-        { "Steal", PlayerAction.Steal },
-        { "Defend", PlayerAction.Defend },
-        { "Item", PlayerAction.UseItem },
-        { "Change", PlayerAction.Change }
+        { AttackLabel, PlayerAction.Attack },
+        { StealLabel, PlayerAction.Steal },
+        { DefendLabel, PlayerAction.Defend },
+        { ItemLabel, PlayerAction.UseItem },
+        { ChangeLabel, PlayerAction.Change }
     };
 
     private readonly BattleEngine _btlEngine;
@@ -41,17 +48,22 @@ public class Game
     public void Start()
     {
         System.Console.WriteLine(" ");
-        WriteMessage($"{_btlEngine.CurrentUnitTurn.Name}'s turn.");
+        WriteMessage($"{_btlEngine.Source.Name}'s turn.");
+
+        Unit playerUnit = _btlEngine.UnitsInBattle.First(u => u.IsPlayer);
+        string playerNameWithPadding = playerUnit.Name.PadRight(7);
+        string playerHpWithPadding = playerUnit.Hp.ToString().PadLeft(3);
 
         // Start drawing menu three lines below first line.
         System.Console.SetCursorPosition(0, 2);
-        System.Console.WriteLine( "|---------|---------|          ");
-        System.Console.WriteLine( "| Attack  | Defend  |          |------------------|");
-        System.Console.WriteLine( "|---------|---------|          |Name     |  HP| MP|");
-        System.Console.WriteLine("| Steal   |         |          | {0}  | {1}| 36|", _btlEngine.UnitsInBattle.First().Name, _btlEngine.UnitsInBattle.First().Health);
-        System.Console.WriteLine( "|---------|---------|          |                  |");
-        System.Console.WriteLine( "| Item    | Change  |          |                  |");
-        System.Console.WriteLine( "|---------|---------|          |                  |");
+        System.Console.WriteLine("|---------|---------|          ");
+        System.Console.WriteLine("| {0}| {1}|          |------------------|", AttackLabel.PadRight(8), DefendLabel.PadRight(8));
+        System.Console.WriteLine("|---------|---------|          |Name     |  HP| MP|");
+        System.Console.WriteLine("| {0}| {1}|          | {2} | {3}|  0|", StealLabel.PadRight(8), EmptyLabel.PadRight(8) ,playerNameWithPadding,
+            playerHpWithPadding);
+        System.Console.WriteLine("|---------|---------|          |                  |");
+        System.Console.WriteLine("| {0}| {1}|          |                  |", ItemLabel.PadRight(8), ChangeLabel.PadRight(8));
+        System.Console.WriteLine("|---------|---------|          |                  |");
 
         SetBattleMenuCursor(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
 
@@ -81,6 +93,7 @@ public class Game
                         ExecuteDefendAction();
                         break;
                     case PlayerAction.Steal:
+                        ExecuteStealAction();
                         break;
                     case PlayerAction.UseItem:
                         break;
@@ -92,69 +105,100 @@ public class Game
                         throw new ArgumentOutOfRangeException();
                 }
             }
+
+            if (_btlEngine.EnemyDefeated)
+            {
+                break;
+            }
         }
+    }
+
+    private void ExecuteStealAction()
+    {
+        _btlEngine.TurnSteal();
+
+        Item? stolenItem = _btlEngine.LastStolenItem;
+
+        string msg;
+        if (stolenItem is not null)
+        {
+            msg = $"{_btlEngine.Source} stole {stolenItem.Name} from {_btlEngine.Target}";
+        }
+        else
+        {
+            msg = "Couldn't steal an item";
+        }
+        
+        WriteMessage(msg);
     }
 
     private void ExecuteDefendAction()
     {
         _btlEngine.TurnDefence();
-        
-        var msg = $"{_btlEngine.CurrentUnitTurn.Name} increase it's defence by 10%.";
+
+        var msg = $"{_btlEngine.Source.Name} is in defence stance. Incoming damage reduced by 50%.";
         WriteMessage(msg);
-        
-        Thread.Sleep(2000);
+
+        Thread.Sleep(1000);
         _btlEngine.NextTurn();
-        WriteMessage($"{_btlEngine.CurrentUnitTurn.Name}'s turn.");
+        WriteMessage($"{_btlEngine.Source.Name}'s turn.");
     }
 
     private void ExecuteAttackAction()
     {
-        Unit target = _btlEngine.CurrentUnitTurn.Name == "Zidane"
-            ? _btlEngine.UnitsInBattle.Single(u => u.Name == "Masked Man")
-            : _btlEngine.UnitsInBattle.Single(u => u.Name == "Zidane");
-        
+        Unit target = _btlEngine.Target;
         _btlEngine.TurnAttack(target);
 
-        if (target.Name == "Zidane")
+        if (target.IsPlayer)
         {
-            UpdateZidaneHealthOnConsole(target);
+            UpdatePlayerHealthOnConsole(target);
         }
 
-        string msg = $"{_btlEngine.CurrentUnitTurn.Name} " +
-                     $"dealt {_btlEngine.LastDamageValue} " +
-                     $"to {target.Name}";
+        string msg;
+        if (_btlEngine.LastDamageValue == 0)
+        {
+            // Miss
+            msg = $"{_btlEngine.Source.Name} " +
+                  $"missed attack.";
+        }
+        else
+        {
+            msg = $"{_btlEngine.Source.Name} " +
+                  $"dealt {_btlEngine.LastDamageValue} damage " +
+                  $"to {target.Name}";
+        }
+
         WriteMessage(msg);
-        
-        
+
         if (target.IsAlive == false)
         {
-            Thread.Sleep(2000);
-            
+            Thread.Sleep(1000);
+
             var playerIsDeadMsg = $"{target.Name} died.";
             WriteMessage(playerIsDeadMsg);
-            
-            Thread.Sleep(2000);
 
-            var winnerMsg = $"{_btlEngine.CurrentUnitTurn.Name} won.";
+            Thread.Sleep(1000);
+
+            var winnerMsg = $"{_btlEngine.Source.Name} won.";
             WriteMessage(winnerMsg);
             return;
         }
-        
-        Thread.Sleep(2000);
+
+        Thread.Sleep(1000);
         _btlEngine.NextTurn();
-        WriteMessage($"{_btlEngine.CurrentUnitTurn.Name}'s turn.");
+        WriteMessage($"{_btlEngine.Source.Name}'s turn.");
     }
 
-    private void UpdateZidaneHealthOnConsole(Unit target)
+    private void UpdatePlayerHealthOnConsole(Unit target)
     {
         for (int left = ZidaneHpStartLeft; left < ZidaneHpEndLeft; left++)
         {
             System.Console.SetCursorPosition(left, ZidaneTop);
             System.Console.Write(' ');
         }
-        
-        char[] split = target.Health.ToString().ToCharArray();
-        
+
+        char[] split = target.Hp.ToString().ToCharArray();
+
         int i = 0;
         // Clear current value of Zidane's health.
         for (int left = ZidaneHpStartLeft + (4 - split.Length); left < ZidaneHpEndLeft; left++)
