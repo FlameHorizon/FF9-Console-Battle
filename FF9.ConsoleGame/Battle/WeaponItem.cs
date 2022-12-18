@@ -2,6 +2,16 @@
 
 public class WeaponItem : Item
 {
-    public int Attack { get; private set; } = 0;
+    public WeaponItem()
+    { }
+
+    public WeaponItem(string name, int atk = 0)
+    
+    {
+        Name = name;
+        Atk = atk;
+    }
+
+    public int Atk { get; private set; } = 0;
     public byte HitRateBonus { get; private set; } = 0;
 }

@@ -245,12 +245,33 @@ public class BattleEngineTests
     {
         IEnumerable<Unit> playerParty = new[]
         {
-            new UnitBuilder().AsPlayer().WithHp(0).Build(),
+            new UnitBuilder().AsPlayer().WithHp(1).Build(),
             new UnitBuilder().AsPlayer().WithHp(1).Build(),
         };
         IEnumerable<Unit> enemyParty = GetAiUnits(1);
 
         var e = new BattleEngine(playerParty, enemyParty);
         e.PlayerDefeated.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Queue_RemovesUnit_WhenUnitDiesDuringCombat()
+    {
+        IEnumerable<Unit> playerParty = new[]
+        {
+            new UnitBuilder().AsPlayer().WithHp(1).Build(),
+            new UnitBuilder().AsPlayer().WithHp(1).Build(),
+        };
+        IEnumerable<Unit> enemyParty = new[]
+        {
+            new UnitBuilder().AsEnemy().WithHp(1).WithStr(2).Build(),
+        };
+        
+        var e = new BattleEngine(playerParty, enemyParty, GetAlwaysHitTenCalculator());
+        
+        e.TurnAttack(enemyParty.First(), playerParty.First());
+        e.NextTurn();
+
+        e.Queue.Should().NotContain(playerParty.First());
     }
 }

@@ -2,5 +2,5 @@
 
 public abstract class Item
 {
-    public string Name { get; private set; } = string.Empty;
+    public string Name { get; protected set; } = string.Empty;
 }

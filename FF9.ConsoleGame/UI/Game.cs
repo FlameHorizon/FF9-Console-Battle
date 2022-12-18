@@ -59,8 +59,7 @@ public class Game
         Console.WriteLine("|---------|---------|          ");
         Console.WriteLine("| {0}| {1}|          |------------------|", AttackLabel.PadRight(8), DefendLabel.PadRight(8));
         Console.WriteLine("|---------|---------|          |Name     |  HP| MP|");
-        Console.WriteLine("| {0}| {1}|          | {2} | {3}|  0|", StealLabel.PadRight(8), EmptyLabel.PadRight(8) ,playerNameWithPadding,
-            playerHpWithPadding);
+        Console.WriteLine("| {0}| {1}|          | {2} | {3}|  0|", StealLabel.PadRight(8), EmptyLabel.PadRight(8) ,playerNameWithPadding, playerHpWithPadding);
         Console.WriteLine("|---------|---------|          |                  |");
         Console.WriteLine("| {0}| {1}|          |                  |", ItemLabel.PadRight(8), ChangeLabel.PadRight(8));
         Console.WriteLine("|---------|---------|          |                  |");
@@ -74,6 +73,12 @@ public class Game
                 BattleAction action = _btlEngine.AiAction();
                 HandleAction(action);
             }
+
+            if (_btlEngine.PlayerDefeated)
+            {
+                WriteMessage("Player party has been defeated.");
+                break;
+            }
             
             ConsoleKeyInfo keyPressed = Console.ReadKey(true);
 
@@ -86,7 +91,11 @@ public class Game
                 HandleAction(_currentPlayerAction);
 
             if (_btlEngine.EnemyDefeated)
+            {
+                WriteMessage("Enemy party has been defeated.");
                 break;
+            }
+
         }
     }
 
@@ -152,9 +161,7 @@ public class Game
         string msg;
         if (_btlEngine.LastDamageValue == 0)
         {
-            // Miss
-            msg = $"{_btlEngine.Source.Name} " +
-                  $"missed attack.";
+            msg = $"{_btlEngine.Source.Name} missed attack.";
         }
         else
         {
@@ -168,14 +175,8 @@ public class Game
         if (target.IsAlive == false)
         {
             Thread.Sleep(1000);
-
-            var playerIsDeadMsg = $"{target.Name} died.";
-            WriteMessage(playerIsDeadMsg);
-
+            WriteMessage($"{target.Name} died.");
             Thread.Sleep(1000);
-
-            var winnerMsg = $"{_btlEngine.Source.Name} won.";
-            WriteMessage(winnerMsg);
             return;
         }
 

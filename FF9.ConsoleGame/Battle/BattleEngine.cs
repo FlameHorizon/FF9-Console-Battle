@@ -4,14 +4,15 @@ namespace FF9.ConsoleGame.Battle;
 
 public class BattleEngine
 {
+    private Queue<Unit> _queue = new();
     private readonly IEnumerable<Unit> _playerUnits;
     private readonly IEnumerable<Unit> _enemyUnits;
     private readonly Unit _unit1;
     private readonly Unit _unit2;
-    private readonly Queue<Unit> _queue = new();
     private readonly IPhysicalDamageCalculator _physicalDamageCalc;
     private readonly IStealCalculator _stealCalculator;
     private readonly List<Unit> _unitsInBattle;
+    private Unit? _target;
 
     public int LastDamageValue { get; private set; }
 
@@ -24,21 +25,6 @@ public class BattleEngine
     public BattleEngine(IEnumerable<Unit> units)
         : this(units.First(), units.Skip(1).First())
     {
-    }
-
-    public BattleEngine(IEnumerable<Unit> playerUnits, IEnumerable<Unit> enemyUnits)
-    {
-        _playerUnits = playerUnits;
-        _enemyUnits = enemyUnits;
-        
-        _unitsInBattle = new List<Unit>();
-        _unitsInBattle.AddRange(_playerUnits);
-        _unitsInBattle.AddRange(_enemyUnits);
-
-        _physicalDamageCalc = new PhysicalDamageCalculator(new RandomProvider());
-        _stealCalculator = new StealCalculator();
-        
-        InitializeQueue();
     }
 
     public BattleEngine(Unit unit1, Unit unit2)
@@ -77,6 +63,27 @@ public class BattleEngine
         UnitsInBattle = new List<Unit> { _unit1, _unit2 };
         _physicalDamageCalc = physicalDamageCalculator;
         _stealCalculator = stealCalculator;
+
+        InitializeQueue();
+    }
+
+    public BattleEngine(IEnumerable<Unit> playerUnits, IEnumerable<Unit> enemyUnits)
+        : this(playerUnits, enemyUnits, new PhysicalDamageCalculator(new RandomProvider()))
+    {
+    }
+
+    public BattleEngine(IEnumerable<Unit> playerUnits, IEnumerable<Unit> enemyUnits,
+        IPhysicalDamageCalculator physicalDamageCalculator)
+    {
+        _playerUnits = playerUnits;
+        _enemyUnits = enemyUnits;
+
+        _unitsInBattle = new List<Unit>();
+        _unitsInBattle.AddRange(_playerUnits);
+        _unitsInBattle.AddRange(_enemyUnits);
+
+        _physicalDamageCalc = physicalDamageCalculator;
+        _stealCalculator = new StealCalculator();
 
         InitializeQueue();
     }
@@ -127,11 +134,17 @@ public class BattleEngine
         }
     }
 
+    public void TurnAttack() => TurnAttack(Source, Target);
     public void TurnAttack(Unit target) => TurnAttack(Source, target);
 
     public void TurnAttack(Unit source, Unit target)
     {
-        int damageTaken = _physicalDamageCalc.Calculate(source.Damage, source.PhysicalHitRate, Target);
+        if (!ReferenceEquals(_target, target))
+        {
+            _target = target;
+        }
+
+        int damageTaken = _physicalDamageCalc.Calculate(source.Damage, source.PhysicalHitRate, target);
 
         LastDamageValue = damageTaken;
         target.TakeDamage(damageTaken);
@@ -149,6 +162,12 @@ public class BattleEngine
     /// </summary>
     public void NextTurn()
     {
+        // Remove unit which is dead from the queue.
+        if (_target?.IsAlive == false)
+        {
+            _queue = new Queue<Unit>(_queue.Where(u => u != _target));
+        }
+
         Unit u = _queue.Dequeue();
         _queue.Enqueue(u);
 
@@ -163,11 +182,11 @@ public class BattleEngine
     public void TurnSteal()
     {
         Item? stolenItem = _stealCalculator.Steal(Source, Target);
-        
+
         // Means, nothing got stolen.
-        if (stolenItem is null) 
+        if (stolenItem is null)
             return;
-        
+
         Source.PutIntoInventory(stolenItem);
         LastStolenItem = stolenItem;
     }

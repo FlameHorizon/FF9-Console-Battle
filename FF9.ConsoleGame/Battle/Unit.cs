@@ -18,7 +18,7 @@ public class Unit
     // public int Lck { get; private set; }
 
     // Derived stats
-    public int Damage => (Str / 2) + Weapon.Attack;
+    public int Damage => (Str / 2) + Weapon.Atk;
     public int Defence { get; private set; }
 
     // Hidden stats
@@ -42,6 +42,7 @@ public class Unit
     public bool InDefenceStance { get; private set; }
 
     private IPhysicalDamageCalculator _physicalDamageCalculator;
+    private int _atk;
 
     public Unit(string name, int hp, int str, int agl, int defence, int level, bool isPlayer, int spr,
         List<Item>? stealableItems, int[]? rates)
@@ -101,8 +102,16 @@ public class Unit
         _equipment.Add(equipmentItem);
     }
 
-    public Item Steal(int slot)
+    public Item? Steal(int slot)
     {
+        if (slot <= -1) 
+            throw new ArgumentOutOfRangeException(nameof(slot), "Value must be in range 0 and 3");
+
+        if (StealableItems.Count == 0)
+        {
+            return null;
+        }
+        
         Item item = StealableItems[slot];
         StealableItems.Remove(item);
 

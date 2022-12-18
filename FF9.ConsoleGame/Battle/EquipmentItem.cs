@@ -3,7 +3,11 @@
 public class EquipmentItem : Item
 {
     public EquipmentItem()
+    { }
+
+    public EquipmentItem(string name)
     {
+        Name = name;
     }
 
     public EquipmentItem(EquipmentType type, int armor)
