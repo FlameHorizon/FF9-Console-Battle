@@ -59,10 +59,15 @@ public class Game
     private IEnumerable<Unit> _playerParty;
 
     private readonly BattleEngine _btlEngine;
+    private readonly CommandPanel _commandPanel;
+    private readonly PartyStatusPanel _partyStatusPanel;
 
     public Game(BattleEngine btlEngine)
     {
         _btlEngine = btlEngine;
+        _commandPanel = new CommandPanel();
+        _partyStatusPanel = new PartyStatusPanel(_btlEngine);
+        _playerParty = _btlEngine.UnitsInBattle.Where(u => u.IsPlayer);
         Console.CursorVisible = false;
     }
 
@@ -70,8 +75,8 @@ public class Game
     {
         Console.WriteLine(" ");
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
-
-        DrawBattleMenuWithCharactersInfo();
+        _commandPanel.DrawBattleMenu();
+        _partyStatusPanel.DrawCharactersInfo();
 
         SetBattleMenuCursor(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
         UpdatePlayerTurnIndicator();
@@ -111,28 +116,7 @@ public class Game
         }
     }
 
-    private void DrawBattleMenuWithCharactersInfo()
-    {
-        _playerParty = _btlEngine.UnitsInBattle.Where(u => u.IsPlayer).ToList();
-        Unit first = _playerParty.First();
-        Unit second = _playerParty.Skip(1).First();
-        Unit third = _playerParty.Skip(2).First();
-        Unit forth = _playerParty.Skip(3).First();
-        
-        // Start drawing menu three lines below first line.
-        Console.SetCursorPosition(0, 2);
-        Console.WriteLine("|---------|---------|          ");
-        Console.WriteLine("| {0}| {1}|          |--------------------|", AttackLabel.PadRight(8), DefendLabel.PadRight(8));
-        Console.WriteLine("|---------|---------|          |Name     |   HP|  MP|");
-        Console.WriteLine("| {0}| {1}|          | {2} | {3}| {4}|", StealLabel.PadRight(8), EmptyLabel.PadRight(8),
-            first.Name.PadRight(7), first.Hp.ToString().PadLeft(4), first.Mp.ToString().PadLeft(3));
-        Console.WriteLine("|---------|---------|          | {0} | {1}| {2}|", second.Name.PadRight(7),
-            second.Hp.ToString().PadLeft(4), second.Mp.ToString().PadLeft(3));
-        Console.WriteLine("| {0}| {1}|          | {2} | {3}| {4}|", ItemLabel.PadRight(8), ChangeLabel.PadRight(8),
-            third.Name.PadRight(7), third.Hp.ToString().PadLeft(4), third.Mp.ToString().PadLeft(3));
-        Console.WriteLine("|---------|---------|          | {0} | {1}| {2}|", forth.Name.PadRight(7),
-            forth.Hp.ToString().PadLeft(4), forth.Mp.ToString().PadLeft(3));
-    }
+    
 
     private void UpdatePlayerTurnIndicator()
     {
