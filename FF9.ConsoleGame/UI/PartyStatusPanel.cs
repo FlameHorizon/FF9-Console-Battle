@@ -14,7 +14,8 @@ public class PartyStatusPanel
     private readonly int _turnIndicatorLeft;
 
     public PartyStatusPanel(BattleEngine btlEngine) : this(btlEngine, (31, 3))
-    { }
+    {
+    }
 
     public PartyStatusPanel(BattleEngine btlEngine, (int left, int top) panelLefTopPosition)
     {
@@ -75,42 +76,33 @@ public class PartyStatusPanel
         Console.Write("*");
     }
 
-    public void UpdatePlayerHealthOnConsole(Unit? first, Unit? second, Unit? third, Unit? forth)
+    public void UpdatePlayerHealthOnConsole()
     {
-        const int spaceBetweenMessageLineAndBattleMenu = 2;
-        const int spaceBetweenEachCharacter = 1;
-        
-        const int firstTop = 3 + spaceBetweenMessageLineAndBattleMenu;
-        const int secondTop = firstTop + spaceBetweenEachCharacter;
-        const int thirdTop = secondTop + spaceBetweenEachCharacter;
-        const int forthTop = thirdTop + spaceBetweenEachCharacter;
-        
-        if (first is not null)
-            UpdateCurrentHp(first.Hp, firstTop);
-        
-        if (second is not null)
-            UpdateCurrentHp(second.Hp, secondTop);
-        
-        if (third is not null)
-            UpdateCurrentHp(third.Hp, thirdTop);
-        
-        if (forth is not null)
-            UpdateCurrentHp(forth.Hp, forthTop);
+        var pos = 1;
+        foreach (Unit unit in _playerParty)
+        {
+            UpdateCurrentHp(unit.Hp, pos);
+            pos++;
+        }
     }
 
-    private static void UpdateCurrentHp(int currentHp, int top)
+    private static void UpdateCurrentHp(int currentHp, int pos)
     {
+        const int spaceBetweenMessageLineAndBattleMenu = 2;
+        const int firstTop = 3 + spaceBetweenMessageLineAndBattleMenu;
+
+        int top2 = firstTop + (pos - 1);
         // Left coords. are always the same for every character.
         (int start, int end) hpRange = (43, 47);
-        
+
         // Make space for new hp value.
-        ClearRange(hpRange, top);
-        
+        ClearRange(hpRange, top2);
+
         // Find correct start position to start writing hp value by looking at length of string.
         int startPos = hpRange.start + 4 - currentHp.ToString().Length;
-        
+
         // Write actual hp value as a text.
-        Console.SetCursorPosition(startPos, top);
+        Console.SetCursorPosition(startPos, top2);
         Console.Write(currentHp.ToString());
     }
 

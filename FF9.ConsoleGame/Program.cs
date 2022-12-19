@@ -17,38 +17,38 @@ IEnumerable<Unit> playerParty = new[]
         .WithAgl(23)
         .Build(),
     
-    // new UnitBuilder()
-    //     .AsPlayer()
-    //     .WithName("Cinna")
-    //     .WithLv(1)
-    //     .WithHp(75)
-    //     .WithMp(32)
-    //     .WithStr(21)
-    //     .WithSpirit(23)
-    //     .WithAgl(23)
-    //     .Build(),
-    //
-    // new UnitBuilder()
-    //     .AsPlayer()
-    //     .WithName("Marcus")
-    //     .WithLv(1)
-    //     .WithHp(90)
-    //     .WithMp(22)
-    //     .WithStr(21)
-    //     .WithSpirit(23)
-    //     .WithAgl(23)
-    //     .Build(),
-    //
-    // new UnitBuilder()
-    //     .AsPlayer()
-    //     .WithName("Blank")
-    //     .WithLv(1)
-    //     .WithHp(105)
-    //     .WithMp(24)
-    //     .WithStr(21)
-    //     .WithSpirit(23)
-    //     .WithAgl(23)
-    //     .Build()
+    new UnitBuilder()
+        .AsPlayer()
+        .WithName("Cinna")
+        .WithLv(1)
+        .WithHp(75)
+        .WithMp(32)
+        .WithStr(21)
+        .WithSpirit(23)
+        .WithAgl(23)
+        .Build(),
+    
+    new UnitBuilder()
+        .AsPlayer()
+        .WithName("Marcus")
+        .WithLv(1)
+        .WithHp(90)
+        .WithMp(22)
+        .WithStr(21)
+        .WithSpirit(23)
+        .WithAgl(23)
+        .Build(),
+    
+    new UnitBuilder()
+        .AsPlayer()
+        .WithName("Blank")
+        .WithLv(1)
+        .WithHp(105)
+        .WithMp(24)
+        .WithStr(21)
+        .WithSpirit(23)
+        .WithAgl(23)
+        .Build()
 };
 
 IEnumerable<Unit> enemyParty = new[]

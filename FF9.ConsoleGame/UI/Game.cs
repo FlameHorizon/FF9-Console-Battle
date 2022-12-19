@@ -53,9 +53,7 @@ public class Game
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
         _commandPanel.DrawBattleMenu();
         _commandPanel.SetBattleMenuCursor(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
-        
-        // NOTE: Since now, we have specialized class to updated command panel,
-        // move logic of updating cursor position there as well.
+
         _partyStatusPanel.DrawCharactersInfo();
         _partyStatusPanel.UpdatePlayerTurnIndicator();
 
@@ -163,25 +161,11 @@ public class Game
         _btlEngine.TurnAttack(target);
 
         if (target.IsPlayer)
-        {
-            _partyStatusPanel.UpdatePlayerHealthOnConsole(
-                _playerParty.FirstOrDefault(),
-                _playerParty.Skip(1).FirstOrDefault(),
-                _playerParty.Skip(2).FirstOrDefault(),
-                _playerParty.Skip(3).FirstOrDefault());
-        }
+            _partyStatusPanel.UpdatePlayerHealthOnConsole();
 
-        string msg;
-        if (_btlEngine.LastDamageValue == 0)
-        {
-            msg = $"{_btlEngine.Source.Name} missed attack.";
-        }
-        else
-        {
-            msg = $"{_btlEngine.Source.Name} " +
-                  $"dealt {_btlEngine.LastDamageValue} damage " +
-                  $"to {target.Name}";
-        }
+        string msg = _btlEngine.LastDamageValue == 0
+            ? $"{_btlEngine.Source.Name} missed attack."
+            : $"{_btlEngine.Source.Name} dealt {_btlEngine.LastDamageValue} damage to {target.Name}";
 
         WriteMessage(msg);
 
