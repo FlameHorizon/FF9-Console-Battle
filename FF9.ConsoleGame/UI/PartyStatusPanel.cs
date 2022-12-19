@@ -91,7 +91,7 @@ public class PartyStatusPanel
         (int start, int end) hpRange = (_panelPosition.left + 12, _panelPosition.left + 12 + 4);
 
         // Make space for new hp value.
-        ClearRange(hpRange, top);
+        ConsoleExtensions.ClearRange(hpRange, top);
 
         // Find correct start position to start writing hp value by looking at length of string.
         int startPos = hpRange.start + 4 - currentHp.ToString().Length;
@@ -99,14 +99,5 @@ public class PartyStatusPanel
         // Write actual hp value as a text.
         Console.SetCursorPosition(startPos, top);
         Console.Write(currentHp.ToString());
-    }
-
-    private static void ClearRange((int start, int end) leftRange, int top)
-    {
-        for (int left = leftRange.start; left < leftRange.end; left++)
-        {
-            Console.SetCursorPosition(left, top);
-            Console.Write(' ');
-        }
     }
 }

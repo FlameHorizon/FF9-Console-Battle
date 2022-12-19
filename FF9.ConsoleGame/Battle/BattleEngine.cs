@@ -112,7 +112,7 @@ public class BattleEngine
     ///
     /// TODO: This worked well when I had one opponent and one ally. Right now it's different and it causes bugs.
     /// It would be good to implement targeting mechanism next.
-    public Unit Target => _queue.Skip(1).First();
+    public Unit Target { get; private set; }
 
     public bool EnemyDefeated
     {
@@ -182,9 +182,11 @@ public class BattleEngine
     /// This method allows unit to steal item from Target unit. If successfully, item is transferred to
     /// the inventory of stealer. Otherwise, turn passes.
     /// </summary>
-    public void TurnSteal()
+    public void TurnSteal() => TurnSteal(Target);
+
+    public void TurnSteal(Unit target)
     {
-        Item? stolenItem = _stealCalculator.Steal(Source, Target);
+        Item? stolenItem = _stealCalculator.Steal(Source, target);
 
         // Means, nothing got stolen.
         if (stolenItem is null)
@@ -197,5 +199,13 @@ public class BattleEngine
     public BattleAction AiAction()
     {
         return BattleAction.Attack;
+    }
+
+    public void SetTarget(Unit? newTarget)
+    {
+        if (newTarget is null)
+            return;
+
+        Target = newTarget;
     }
 }

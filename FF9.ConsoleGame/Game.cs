@@ -1,33 +1,36 @@
 ﻿using FF9.ConsoleGame.Battle;
+using FF9.ConsoleGame.UI;
 
-namespace FF9.ConsoleGame.UI;
+namespace FF9.ConsoleGame;
 
 public class Game
 {
     private const int MillisecondsTimeout = 500;
-    
+
     private const int MessageLinePositionTop = 0;
     private const int MessageLinePositionLeft = 0;
 
     private readonly BattleEngine _btlEngine;
     private readonly CommandPanel _commandPanel;
     private readonly PartyStatusPanel _partyStatusPanel;
+    private readonly TargetingPanel _targetingPanel;
 
     public Game(BattleEngine btlEngine)
     {
         _btlEngine = btlEngine;
-        _commandPanel = new CommandPanel(panelPosition: (0, 1));
+        _commandPanel = new CommandPanel(panelPosition: (0, 2));
         _partyStatusPanel = new PartyStatusPanel(_btlEngine, panelPosition: (30, 2));
+        _targetingPanel = new TargetingPanel(_btlEngine, panelPosition: (0, 2));
         Console.CursorVisible = false;
     }
 
     // Now I will be working on targeting system.
-    
+
     public void Start()
     {
         Console.WriteLine(" ");
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
-        _commandPanel.DrawBattleMenu();
+        _commandPanel.Draw();
 
         _partyStatusPanel.Draw();
         _partyStatusPanel.UpdatePlayerTurnIndicator();
@@ -51,16 +54,45 @@ public class Game
             if (ArrowKeyPressed(keyPressed))
             {
                 HandleArrowKey(keyPressed);
-                _commandPanel.UpdateCurrentPlayerAction();
             }
             else if (ConsoleKey.Enter == keyPressed.Key)
-                HandleAction(_commandPanel.CurrentPlayerAction);
+            {
+                if (_targetingPanel.IsVisible && _targetingPanel.Target != null)
+                {
+                    _btlEngine.SetTarget(_targetingPanel.Target);
+                    HandleAction(_commandPanel.CurrentPlayerAction);
+                    _targetingPanel.Hide();
+                    _commandPanel.Draw();
+                }
+                else if (_commandPanel.IsVisible)
+                {
+                    _commandPanel.Hide();
+                    _targetingPanel.Draw();
+                }
+            }
+
+            else if (ConsoleKey.B == keyPressed.Key)
+                HandleBack();
 
             if (_btlEngine.EnemyDefeated)
             {
                 WriteMessage("Enemy party has been defeated.");
                 break;
             }
+        }
+    }
+
+    private void HandleBack()
+    {
+        if (_commandPanel.IsVisible)
+        {
+            return;
+        }
+
+        if (_targetingPanel.IsVisible)
+        {
+            _targetingPanel.Hide();
+            _commandPanel.Draw();
         }
     }
 
@@ -99,7 +131,7 @@ public class Game
             : "Couldn't steal an item";
 
         WriteMessage(msg);
-        
+
         Thread.Sleep(MillisecondsTimeout);
         _btlEngine.NextTurn();
         _partyStatusPanel.UpdatePlayerTurnIndicator();
@@ -124,10 +156,11 @@ public class Game
         Unit target;
         if (_btlEngine.Source.IsPlayer)
         {
-            target = _btlEngine.UnitsInBattle.First(u => u.IsPlayer == false);
+            target = _btlEngine.Target;
         }
         else
         {
+            // This is how AI makes decision who to target.
             IEnumerable<Unit> list = _btlEngine.UnitsInBattle.Where(u => u.IsPlayer);
             int rand = Random.Shared.Next(1, list.Count() + 1);
             target = list.Skip(rand - 1).First();
@@ -148,8 +181,6 @@ public class Game
         {
             Thread.Sleep(MillisecondsTimeout);
             WriteMessage($"{target.Name} died.");
-            Thread.Sleep(MillisecondsTimeout);
-            return;
         }
 
         Thread.Sleep(MillisecondsTimeout);
@@ -161,12 +192,12 @@ public class Game
     private static bool ArrowKeyPressed(ConsoleKeyInfo keyPressed)
     {
         return new[]
-            {
-                ConsoleKey.DownArrow,
-                ConsoleKey.UpArrow,
-                ConsoleKey.RightArrow,
-                ConsoleKey.LeftArrow
-            }.Contains(keyPressed.Key);
+        {
+            ConsoleKey.DownArrow,
+            ConsoleKey.UpArrow,
+            ConsoleKey.RightArrow,
+            ConsoleKey.LeftArrow
+        }.Contains(keyPressed.Key);
     }
 
     private void HandleArrowKey(ConsoleKeyInfo keyPressed)
@@ -179,7 +210,16 @@ public class Game
             { ConsoleKey.RightArrow, CursorMoveDirection.Right }
         };
 
-        _commandPanel.MoveBattleMenuCursor(keyDirectionMap[keyPressed.Key]);
+        if (_commandPanel.IsVisible)
+        {
+            _commandPanel.MoveBattleMenuCursor(keyDirectionMap[keyPressed.Key]);
+            _commandPanel.UpdateCurrentPlayerAction();
+        }
+        else if (_targetingPanel.IsVisible)
+            _targetingPanel.MoveCursor(keyDirectionMap[keyPressed.Key]);
+
+        else
+            throw new InvalidOperationException("No panel can handle this button press.");
     }
 
     private static void WriteMessage(string msg)

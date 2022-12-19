@@ -87,7 +87,7 @@ public class BattleEngineTests
         IStealCalculator stealCalculator = GetAlwaysStealCalculator();
 
         var engine = new BattleEngine(thief, warrior, stealCalculator);
-        engine.TurnSteal();
+        engine.TurnSteal(warrior);
 
         engine.LastStolenItem.Should().BeOfType(typeof(WeaponItem));
     }
@@ -104,7 +104,7 @@ public class BattleEngineTests
         IStealCalculator stealCalculator = GetAlwaysStealCalculator();
 
         var engine = new BattleEngine(thief, warrior, stealCalculator);
-        engine.TurnSteal();
+        engine.TurnSteal(warrior);
         engine.NextTurn();
 
         engine.LastStolenItem.Should().BeNull();

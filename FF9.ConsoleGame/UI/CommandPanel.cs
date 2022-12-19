@@ -11,28 +11,44 @@ public class CommandPanel
 
     private (int left, int top) _cursorPosition;
     private readonly (int left, int top) _panelPosition;
+    private readonly int _panelPositionRight;
 
     public BattleAction? CurrentPlayerAction { get; private set; } = BattleAction.Attack;
+    public bool IsVisible { get; private set; }
 
     public CommandPanel((int left, int top) panelPosition)
     {
         _panelPosition = panelPosition;
         _cursorPosition = (_panelPosition.left + 1, _panelPosition.top + 1);
+        _panelPositionRight = _panelPosition.left + 21;
     }
 
-    public void DrawBattleMenu()
+    public void Draw()
     {
         // Start drawing menu three lines below first line.
         Console.SetCursorPosition(_panelPosition.left, _panelPosition.top);
-        Console.WriteLine("|---------|---------|");
-        Console.WriteLine("| {0}| {1}|          ", AttackLabel.PadRight(8), DefendLabel.PadRight(8));
-        Console.WriteLine("|---------|---------|          ");
-        Console.WriteLine("| {0}| {1}|         ", StealLabel.PadRight(8), EmptyLabel.PadRight(8));
-        Console.WriteLine("|---------|---------|          ");
-        Console.WriteLine("| {0}| {1}|          ", ItemLabel.PadRight(8), ChangeLabel.PadRight(8));
-        Console.WriteLine("|---------|---------|          ");
+        Console.Write("|---------|---------|");
+        
+        Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 1);
+        Console.Write("| {0}| {1}|         ", AttackLabel.PadRight(8), DefendLabel.PadRight(8));
+        
+        Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 2);
+        Console.Write("|---------|---------|         ");
+        
+        Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 3);
+        Console.Write("| {0}| {1}|         ", StealLabel.PadRight(8), EmptyLabel.PadRight(8));
+        
+        Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 4);
+        Console.Write("|---------|---------|         ");
+        
+        Console.SetCursorPosition(_panelPosition.left, _panelPosition.top +5);
+        Console.Write("| {0}| {1}|         ", ItemLabel.PadRight(8), ChangeLabel.PadRight(8));
+        
+        Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 6);
+        Console.Write("|---------|---------|         ");
 
         SetCursorAtInitialPositionInBattleMenu();
+        IsVisible = true;
     }
 
     private void SetCursorAtInitialPositionInBattleMenu()
@@ -107,5 +123,17 @@ public class CommandPanel
         CurrentPlayerAction = string.IsNullOrEmpty(actionName)
             ? null
             : battleMenuPlayerAction[actionName];
+    }
+
+    public void Hide()
+    {
+        ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top);
+        ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 1);
+        ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 2);        ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 2);
+        ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 3);
+        ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 4);
+        ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 5);
+        ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 6);
+        IsVisible = false;
     }
 }

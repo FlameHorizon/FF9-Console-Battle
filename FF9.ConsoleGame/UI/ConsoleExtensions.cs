@@ -5,14 +5,23 @@ namespace FF9.ConsoleGame.UI;
 
 public static class ConsoleExtensions
 {
+    public static void ClearRange((int start, int end) leftRange, int top)
+    {
+        for (int left = leftRange.start; left < leftRange.end; left++)
+        {
+            Console.SetCursorPosition(left, top);
+            Console.Write(' ');
+        }
+    }
+    
     public static void ClearLine(int top)
     {
-        int currLeft = System.Console.CursorLeft;
-        int currTop = System.Console.CursorTop;
+        int currLeft = Console.CursorLeft;
+        int currTop = Console.CursorTop;
         
-        System.Console.SetCursorPosition(0, top);
-        System.Console.Write(new string(' ', System.Console.WindowWidth));
-        System.Console.SetCursorPosition(currLeft, currTop);
+        Console.SetCursorPosition(0, top);
+        Console.Write(new string(' ', Console.WindowWidth));
+        Console.SetCursorPosition(currLeft, currTop);
     }
     
     // <summary>
@@ -20,7 +29,7 @@ public static class ConsoleExtensions
     /// In .Net 5 > use Console.GetCursorPosition
     /// </summary>
     /// <returns>Cursor position</returns>
-    public static KernelHelper.COORD GetCursorPosition()
+    public static COORD GetCursorPosition()
     {
         // Get a handle for the console
         var stdout = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -34,16 +43,16 @@ public static class ConsoleExtensions
     /// </summary>
     /// <param name="ptr"></param>
     /// <returns></returns>
-    public static KernelHelper.CONSOLE_SCREEN_BUFFER_INFO GetConsoleInfo()
+    public static CONSOLE_SCREEN_BUFFER_INFO GetConsoleInfo()
     {
         // Get a handle for the console
         var stdout = GetStdHandle(STD_OUTPUT_HANDLE);
         return GetConsoleInfo(stdout);
     }
 
-    public static KernelHelper.CONSOLE_SCREEN_BUFFER_INFO GetConsoleInfo(IntPtr ptr)
+    public static CONSOLE_SCREEN_BUFFER_INFO GetConsoleInfo(IntPtr ptr)
     {
-        if (!GetConsoleScreenBufferInfo(ptr, out KernelHelper.CONSOLE_SCREEN_BUFFER_INFO outInfo))
+        if (!GetConsoleScreenBufferInfo(ptr, out CONSOLE_SCREEN_BUFFER_INFO outInfo))
             throw new Win32Exception();
         return outInfo;
     }
@@ -53,7 +62,7 @@ public static class ConsoleExtensions
     /// </summary>
     /// <param name="text"></param>
     /// <returns>List of found coordinates</returns>
-    public static List<KernelHelper.COORD> IndexOfInConsole(string text)
+    public static List<COORD> IndexOfInConsole(string text)
     {
         return IndexOfInConsole(new[] { text });
     }
@@ -63,9 +72,9 @@ public static class ConsoleExtensions
     /// </summary>
     /// <param name="text"></param>
     /// <returns>List of found coordinates</returns>
-    public static List<KernelHelper.COORD> IndexOfInConsole(string[] text)
+    public static List<COORD> IndexOfInConsole(string[] text)
     {
-        var coords = new List<KernelHelper.COORD>();
+        var coords = new List<COORD>();
 
         // Get a handle for the console
         var stdout = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -86,7 +95,7 @@ public static class ConsoleExtensions
                     var pos = line.IndexOf(t, xPos);
                     if (pos == -1)
                         break;
-                    coords.Add(new KernelHelper.COORD() { X = (short)pos, Y = (short)y });
+                    coords.Add(new COORD { X = (short)pos, Y = (short)y });
                     xPos = pos + 1;
                 }
             }
@@ -120,7 +129,7 @@ public static class ConsoleExtensions
     public static char GetChar(int x, int y, IntPtr ptr)
     {
         // Convert to coord and call it
-        return GetChar(new KernelHelper.COORD() { X = (short)x, Y = (short)y }, ptr);
+        return GetChar(new COORD { X = (short)x, Y = (short)y }, ptr);
     }
 
     /// <summary>
@@ -129,7 +138,7 @@ public static class ConsoleExtensions
     /// <param name="coordinate"></param>
     /// <param name="ptr"></param>
     /// <returns>One character</returns>
-    public static char GetChar(KernelHelper.COORD coordinate, IntPtr ptr)
+    public static char GetChar(COORD coordinate, IntPtr ptr)
     {
         // Convert the coordinates to a uint containing both
         uint coord = (uint)coordinate.X;
@@ -203,7 +212,7 @@ public static class ConsoleExtensions
     public static string GetText(int x, int y, int length, IntPtr ptr)
     {
         // Convert to coord and call it
-        return GetText(new KernelHelper.COORD() { X = (short)x, Y = (short)y }, length, ptr);
+        return GetText(new COORD { X = (short)x, Y = (short)y }, length, ptr);
     }
 
     /// <summary>
@@ -213,7 +222,7 @@ public static class ConsoleExtensions
     /// <param name="length"></param>
     /// <param name="ptr"></param>
     /// <returns>The specified text on the line</returns>
-    public static string GetText(KernelHelper.COORD coordinate, int length, IntPtr ptr)
+    public static string GetText(COORD coordinate, int length, IntPtr ptr)
     {
         var text = "";
         for (var x = coordinate.X; x < coordinate.X + length; x += 1)
