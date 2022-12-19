@@ -1,39 +1,14 @@
-﻿using System.ComponentModel;
-using FF9.ConsoleGame.Battle;
+﻿using FF9.ConsoleGame.Battle;
 
 namespace FF9.ConsoleGame.UI;
 
 public class Game
 {
+    private const int MillisecondsTimeout = 500;
+    
     private const int MessageLinePositionTop = 0;
     private const int MessageLinePositionLeft = 0;
 
-    private const int SpaceBetweenMessageLineAndBattleMenu = 2;
-
-    private const int BattleMenuPositionLeft = 0;
-    private const int BattleMenuPositionTop = MessageLinePositionTop + SpaceBetweenMessageLineAndBattleMenu;
-
-    private int _battleMenuCursorPositionLeft = 1;
-    private int _battleMenuCursorPositionTop = BattleMenuPositionTop + 1;
-    private BattleAction? _currentPlayerAction = BattleAction.Attack;
-
-    private const string AttackLabel = "Attack";
-    private const string StealLabel = "Steal";
-    private const string ItemLabel = "Item";
-    private const string DefendLabel = "Defend";
-    private const string EmptyLabel = "";
-    private const string ChangeLabel = "Change";
-
-    private readonly Dictionary<string, BattleAction> _battleMenuPlayerAction = new()
-    {
-        { AttackLabel, BattleAction.Attack },
-        { StealLabel, BattleAction.Steal },
-        { DefendLabel, BattleAction.Defend },
-        { ItemLabel, BattleAction.UseItem },
-        { ChangeLabel, BattleAction.Change }
-    };
-
-    private readonly IEnumerable<Unit> _playerParty;
     private readonly BattleEngine _btlEngine;
     private readonly CommandPanel _commandPanel;
     private readonly PartyStatusPanel _partyStatusPanel;
@@ -41,9 +16,8 @@ public class Game
     public Game(BattleEngine btlEngine)
     {
         _btlEngine = btlEngine;
-        _commandPanel = new CommandPanel(panelLeftTopPosition: (0, 2));
-        _partyStatusPanel = new PartyStatusPanel(_btlEngine, panelLefTopPosition: (31, 3));
-        _playerParty = _btlEngine.UnitsInBattle.Where(u => u.IsPlayer);
+        _commandPanel = new CommandPanel(panelPosition: (0, 1));
+        _partyStatusPanel = new PartyStatusPanel(_btlEngine, panelPosition: (30, 2));
         Console.CursorVisible = false;
     }
 
@@ -52,7 +26,6 @@ public class Game
         Console.WriteLine(" ");
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
         _commandPanel.DrawBattleMenu();
-        _commandPanel.SetBattleMenuCursor(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
 
         _partyStatusPanel.DrawCharactersInfo();
         _partyStatusPanel.UpdatePlayerTurnIndicator();
@@ -76,12 +49,10 @@ public class Game
             if (ArrowKeyPressed(keyPressed))
             {
                 HandleArrowKey(keyPressed);
-                UpdateCurrentPlayerAction();
+                _commandPanel.UpdateCurrentPlayerAction();
             }
             else if (ConsoleKey.Enter == keyPressed.Key)
-            {
-                HandleAction(_currentPlayerAction);
-            }
+                HandleAction(_commandPanel.CurrentPlayerAction);
 
             if (_btlEngine.EnemyDefeated)
             {
@@ -126,9 +97,10 @@ public class Game
             : "Couldn't steal an item";
 
         WriteMessage(msg);
-
-        Thread.Sleep(1000);
+        
+        Thread.Sleep(MillisecondsTimeout);
         _btlEngine.NextTurn();
+        _partyStatusPanel.UpdatePlayerTurnIndicator();
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
     }
 
@@ -139,8 +111,9 @@ public class Game
         var msg = $"{_btlEngine.Source.Name} is in defence stance. Incoming damage reduced by 50%.";
         WriteMessage(msg);
 
-        Thread.Sleep(1000);
+        Thread.Sleep(MillisecondsTimeout);
         _btlEngine.NextTurn();
+        _partyStatusPanel.UpdatePlayerTurnIndicator();
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
     }
 
@@ -171,13 +144,13 @@ public class Game
 
         if (target.IsAlive == false)
         {
-            Thread.Sleep(1000);
+            Thread.Sleep(MillisecondsTimeout);
             WriteMessage($"{target.Name} died.");
-            Thread.Sleep(1000);
+            Thread.Sleep(MillisecondsTimeout);
             return;
         }
 
-        Thread.Sleep(1000);
+        Thread.Sleep(MillisecondsTimeout);
         _btlEngine.NextTurn();
         _partyStatusPanel.UpdatePlayerTurnIndicator();
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
@@ -185,90 +158,32 @@ public class Game
 
     private static bool ArrowKeyPressed(ConsoleKeyInfo keyPressed)
     {
-        return new[] { ConsoleKey.DownArrow, ConsoleKey.UpArrow, ConsoleKey.RightArrow, ConsoleKey.LeftArrow }
-            .Contains(keyPressed.Key);
+        return new[]
+            {
+                ConsoleKey.DownArrow,
+                ConsoleKey.UpArrow,
+                ConsoleKey.RightArrow,
+                ConsoleKey.LeftArrow
+            }.Contains(keyPressed.Key);
     }
 
     private void HandleArrowKey(ConsoleKeyInfo keyPressed)
     {
-        if (keyPressed.Key == ConsoleKey.DownArrow)
-            MoveBattleMenuCursor(CursorMoveDirection.Down);
+        var keyDirectionMap = new Dictionary<ConsoleKey, CursorMoveDirection>()
+        {
+            { ConsoleKey.DownArrow, CursorMoveDirection.Down },
+            { ConsoleKey.UpArrow, CursorMoveDirection.Up },
+            { ConsoleKey.LeftArrow, CursorMoveDirection.Left },
+            { ConsoleKey.RightArrow, CursorMoveDirection.Right }
+        };
 
-        else if (keyPressed.Key == ConsoleKey.UpArrow)
-            MoveBattleMenuCursor(CursorMoveDirection.Up);
-
-        else if (keyPressed.Key == ConsoleKey.RightArrow)
-            MoveBattleMenuCursor(CursorMoveDirection.Right);
-
-        else if (keyPressed.Key == ConsoleKey.LeftArrow)
-            MoveBattleMenuCursor(CursorMoveDirection.Left);
+        _commandPanel.MoveBattleMenuCursor(keyDirectionMap[keyPressed.Key]);
     }
 
-    private void UpdateCurrentPlayerAction()
-    {
-        // Get line where currently cursor is to retrieve selected action name.
-        string line = ConsoleExtensions.GetText(0, _battleMenuCursorPositionTop);
-
-        string actionName = line.Split("|")
-            .First(x => x.Contains('>'))
-            .Replace(">", string.Empty)
-            .Trim();
-
-        _currentPlayerAction = string.IsNullOrEmpty(actionName)
-            ? null
-            : _battleMenuPlayerAction[actionName];
-    }
-    
     private static void WriteMessage(string msg)
     {
         ConsoleExtensions.ClearLine(MessageLinePositionTop);
         Console.SetCursorPosition(MessageLinePositionLeft, MessageLinePositionTop);
         Console.Write(msg);
-    }
-
-    private void MoveBattleMenuCursor(CursorMoveDirection direction)
-    {
-        if (direction == CursorMoveDirection.Up)
-            MoveBattleMenuCursor((0, -2));
-
-        else if (direction == CursorMoveDirection.Down)
-            MoveBattleMenuCursor((0, 2));
-
-        else if (direction == CursorMoveDirection.Left)
-            MoveBattleMenuCursor((-10, 0));
-
-        else if (direction == CursorMoveDirection.Right)
-            MoveBattleMenuCursor((10, 0));
-
-        else
-            throw new InvalidEnumArgumentException();
-    }
-
-    private void MoveBattleMenuCursor((int left, int top) offset)
-    {
-        // Check boundaries.
-        if (IsWithinBoundaries(offset) == false)
-            return;
-
-        // Clear cursor behind.
-        Console.SetCursorPosition(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
-        Console.Write(" ");
-
-        (int left, int top) newCursorPosition =
-            (_battleMenuCursorPositionLeft + offset.left, _battleMenuCursorPositionTop + offset.top);
-
-        // Write new cursor location.
-        Console.SetCursorPosition(newCursorPosition.left, newCursorPosition.top);
-        _battleMenuCursorPositionLeft = newCursorPosition.left;
-        _battleMenuCursorPositionTop = newCursorPosition.top;
-        Console.Write(">");
-    }
-
-    private bool IsWithinBoundaries((int left, int top) offset)
-    {
-        return _battleMenuCursorPositionTop + offset.top >= BattleMenuPositionTop + 1
-               && _battleMenuCursorPositionTop + offset.top <= BattleMenuPositionTop + 5
-               && _battleMenuCursorPositionLeft + offset.left <= BattleMenuPositionLeft + 11
-               && _battleMenuCursorPositionLeft + offset.left >= BattleMenuPositionLeft + 0;
     }
 }

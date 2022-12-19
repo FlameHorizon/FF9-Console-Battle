@@ -7,37 +7,33 @@ public class PartyStatusPanel
     private readonly BattleEngine _btlEngine;
     private readonly List<Unit> _playerParty;
 
-    private readonly (int left, int top) _panelLefTopPosition;
+    private readonly (int left, int top) _panelPosition;
     private readonly (int right, int bottom) _panelRightBottomPosition;
-    private (int left, int top) _currentTurnIndicatorPosition;
+    private (int left, int top) _turnIndicatorPosition;
 
     private readonly int _turnIndicatorLeft;
-
-    public PartyStatusPanel(BattleEngine btlEngine) : this(btlEngine, (31, 3))
-    {
-    }
-
-    public PartyStatusPanel(BattleEngine btlEngine, (int left, int top) panelLefTopPosition)
+    
+    public PartyStatusPanel(BattleEngine btlEngine, (int left, int top) panelPosition)
     {
         _btlEngine = btlEngine;
         _playerParty = _btlEngine.UnitsInBattle.Where(u => u.IsPlayer).ToList();
-        _panelLefTopPosition = panelLefTopPosition;
-        _panelRightBottomPosition = (0, _panelLefTopPosition.top + 6);
-        _turnIndicatorLeft = _panelLefTopPosition.left + 1;
+        _panelPosition = panelPosition;
+        _panelRightBottomPosition = (0, _panelPosition.top + 6);
+        _turnIndicatorLeft = _panelPosition.left + 1;
     }
 
     public void DrawCharactersInfo()
     {
-        Console.SetCursorPosition(_panelLefTopPosition.left, _panelLefTopPosition.top);
+        Console.SetCursorPosition(_panelPosition.left, _panelPosition.top);
         Console.Write("|--------------------|");
 
-        Console.SetCursorPosition(_panelLefTopPosition.left, _panelLefTopPosition.top + 1);
+        Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 1);
         Console.Write("|Name     |   HP|  MP|");
 
         int offset = 2;
         foreach (Unit unit in _playerParty)
         {
-            Console.SetCursorPosition(_panelLefTopPosition.left, _panelLefTopPosition.top + offset);
+            Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + offset);
             Console.Write("| {0} | {1}| {2}|",
                 unit.Name.PadRight(7),
                 unit.Hp.ToString().PadLeft(4),
@@ -55,9 +51,9 @@ public class PartyStatusPanel
         }
 
         // Erase previous turn indicator
-        if (_currentTurnIndicatorPosition != (0, 0))
+        if (_turnIndicatorPosition != (0, 0))
         {
-            Console.SetCursorPosition(_currentTurnIndicatorPosition.left, _currentTurnIndicatorPosition.top);
+            Console.SetCursorPosition(_turnIndicatorPosition.left, _turnIndicatorPosition.top);
             Console.Write(" ");
         }
 
@@ -66,7 +62,7 @@ public class PartyStatusPanel
         string lookFor = " " + _btlEngine.Source.Name;
         var coords = ConsoleExtensions.IndexOfInConsole(lookFor);
 
-        _currentTurnIndicatorPosition = (_turnIndicatorLeft, coords.First().Y);
+        _turnIndicatorPosition = (_turnIndicatorLeft, coords.First().Y);
         DrawTurnIndicator(_turnIndicatorLeft, coords.First().Y);
     }
 
@@ -86,23 +82,22 @@ public class PartyStatusPanel
         }
     }
 
-    private static void UpdateCurrentHp(int currentHp, int pos)
+    private void UpdateCurrentHp(int currentHp, int pos)
     {
-        const int spaceBetweenMessageLineAndBattleMenu = 2;
-        const int firstTop = 3 + spaceBetweenMessageLineAndBattleMenu;
-
-        int top2 = firstTop + (pos - 1);
+        const int firstHpLine = 4;
+        int top = firstHpLine + (pos - 1);
+        
         // Left coords. are always the same for every character.
-        (int start, int end) hpRange = (43, 47);
+        (int start, int end) hpRange = (_panelPosition.left + 12, _panelPosition.left + 12 + 4);
 
         // Make space for new hp value.
-        ClearRange(hpRange, top2);
+        ClearRange(hpRange, top);
 
         // Find correct start position to start writing hp value by looking at length of string.
         int startPos = hpRange.start + 4 - currentHp.ToString().Length;
 
         // Write actual hp value as a text.
-        Console.SetCursorPosition(startPos, top2);
+        Console.SetCursorPosition(startPos, top);
         Console.Write(currentHp.ToString());
     }
 
