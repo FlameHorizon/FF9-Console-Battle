@@ -26,20 +26,15 @@ public class Game
     private const int SecondHpStartLeft = 43;
     private const int SecondHpEndLeft = 47;
     private const int SecondTop = FirstTop + SpaceBetweenEachCharacter;
-    
+
     private const int ThirdHpStartLeft = 43;
     private const int ThirdHpEndLeft = 47;
     private const int ThirdTop = SecondTop + SpaceBetweenEachCharacter;
-    
+
     private const int ForthHpStartLeft = 43;
     private const int ForthHpEndLeft = 47;
     private const int ForthTop = ThirdTop + SpaceBetweenEachCharacter;
-    
-    private const int TurnIndicatorLeft = 32;
-    private const int FirstTurnIndicatorTop = FirstTop;
 
-    private (int left, int top) _currentTurnIndicatorPosition;
-    
     private const string AttackLabel = "Attack";
     private const string StealLabel = "Steal";
     private const string ItemLabel = "Item";
@@ -56,8 +51,7 @@ public class Game
         { ChangeLabel, BattleAction.Change }
     };
 
-    private IEnumerable<Unit> _playerParty;
-
+    private readonly IEnumerable<Unit> _playerParty;
     private readonly BattleEngine _btlEngine;
     private readonly CommandPanel _commandPanel;
     private readonly PartyStatusPanel _partyStatusPanel;
@@ -65,8 +59,8 @@ public class Game
     public Game(BattleEngine btlEngine)
     {
         _btlEngine = btlEngine;
-        _commandPanel = new CommandPanel();
-        _partyStatusPanel = new PartyStatusPanel(_btlEngine);
+        _commandPanel = new CommandPanel(panelLeftTopPosition: (0, 2));
+        _partyStatusPanel = new PartyStatusPanel(_btlEngine, panelLefTopPosition: (31, 3));
         _playerParty = _btlEngine.UnitsInBattle.Where(u => u.IsPlayer);
         Console.CursorVisible = false;
     }
@@ -76,11 +70,15 @@ public class Game
         Console.WriteLine(" ");
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
         _commandPanel.DrawBattleMenu();
-        _partyStatusPanel.DrawCharactersInfo();
-
-        SetBattleMenuCursor(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
-        UpdatePlayerTurnIndicator();
         
+        // NOTE: Since now, we have specialized class to updated command panel,
+        // move logic of updating cursor position there as well.
+        
+        _commandPanel.SetBattleMenuCursor(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
+        
+        _partyStatusPanel.DrawCharactersInfo();
+        _partyStatusPanel.UpdatePlayerTurnIndicator();
+
         while (true)
         {
             if (_btlEngine.IsTurnAi)
@@ -94,10 +92,9 @@ public class Game
                 WriteMessage("Player party has been defeated.");
                 break;
             }
-            
-            
+
             ConsoleKeyInfo keyPressed = Console.ReadKey(true);
-            
+
             if (ArrowKeyPressed(keyPressed))
             {
                 HandleArrowKey(keyPressed);
@@ -116,42 +113,10 @@ public class Game
         }
     }
 
-    
-
-    private void UpdatePlayerTurnIndicator()
-    {
-        if (_btlEngine.Source.IsPlayer == false)
-        {
-            return;
-        }
-        
-        // Erase previous turn indicator
-        if (_currentTurnIndicatorPosition != (0, 0))
-        {
-            Console.SetCursorPosition(_currentTurnIndicatorPosition.left, _currentTurnIndicatorPosition.top);
-            Console.Write(" ");
-        }
-        
-        Console.SetCursorPosition(0, ForthTop + 1);
-        // Find top position of a player, which is now taking turn on the console.
-        string lookFor = " " +_btlEngine.Source.Name;
-        var coords = ConsoleExtensions.IndexOfInConsole(lookFor);
-        
-        _currentTurnIndicatorPosition = (TurnIndicatorLeft, coords.First().Y);
-        DrawTurnIndicator(TurnIndicatorLeft, coords.First().Y);
-    }
-    
-    private void DrawTurnIndicator(int left, int top)
-    {
-        Console.SetCursorPosition(left, top);
-        Console.Write("*");
-    }
-
     private void HandleAction(BattleAction? action)
     {
         switch (action)
         {
-            
             case BattleAction.Attack:
                 ExecuteAttackAction();
                 break;
@@ -178,12 +143,12 @@ public class Game
 
         Item? stolenItem = _btlEngine.LastStolenItem;
 
-        string msg = stolenItem is not null 
-            ? $"{_btlEngine.Source.Name} stole {stolenItem.Name} from {_btlEngine.Target.Name}" 
+        string msg = stolenItem is not null
+            ? $"{_btlEngine.Source.Name} stole {stolenItem.Name} from {_btlEngine.Target.Name}"
             : "Couldn't steal an item";
-        
+
         WriteMessage(msg);
-        
+
         Thread.Sleep(1000);
         _btlEngine.NextTurn();
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
@@ -214,13 +179,13 @@ public class Game
             int rand = Random.Shared.Next(1, list.Count() + 1);
             target = list.Skip(rand - 1).First();
         }
-        
+
         _btlEngine.TurnAttack(target);
 
         if (target.IsPlayer)
         {
             UpdatePlayerHealthOnConsole(
-                _playerParty.First(), 
+                _playerParty.First(),
                 _playerParty.Skip(1).First(),
                 _playerParty.Skip(2).First(),
                 _playerParty.Skip(3).First());
@@ -250,7 +215,7 @@ public class Game
 
         Thread.Sleep(1000);
         _btlEngine.NextTurn();
-        UpdatePlayerTurnIndicator();
+        _partyStatusPanel.UpdatePlayerTurnIndicator();
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
     }
 
@@ -274,7 +239,7 @@ public class Game
             i++;
         }
         // 
-        
+
         for (int left = SecondHpStartLeft; left < SecondHpEndLeft; left++)
         {
             Console.SetCursorPosition(left, SecondTop);
@@ -292,9 +257,9 @@ public class Game
 
             i2++;
         }
-        
+
         //
-        
+
         for (int left = ThirdHpStartLeft; left < ThirdHpEndLeft; left++)
         {
             Console.SetCursorPosition(left, ThirdTop);
@@ -312,9 +277,9 @@ public class Game
 
             i3++;
         }
-        
+
         //
-        
+
         for (int left = ForthHpStartLeft; left < ForthHpEndLeft; left++)
         {
             Console.SetCursorPosition(left, ForthTop);
@@ -369,13 +334,7 @@ public class Game
             ? null
             : _battleMenuPlayerAction[actionName];
     }
-
-    private void SetBattleMenuCursor(int left, int top)
-    {
-        Console.SetCursorPosition(left, top);
-        Console.Write(">");
-    }
-
+    
     private static void WriteMessage(string msg)
     {
         ConsoleExtensions.ClearLine(MessageLinePositionTop);

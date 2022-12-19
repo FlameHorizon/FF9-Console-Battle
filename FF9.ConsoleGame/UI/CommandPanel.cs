@@ -9,8 +9,16 @@ public class CommandPanel
     private const string EmptyLabel = "";
     private const string ChangeLabel = "Change";
 
-    private readonly (int left, int top) _panelLeftTopPosition = (0, 2);
+    private readonly (int left, int top) _panelLeftTopPosition;
 
+    public CommandPanel() : this ((0,2))
+    { }
+
+    public CommandPanel((int left, int top) panelLeftTopPosition)
+    {
+        _panelLeftTopPosition = panelLeftTopPosition;
+    }
+    
     public void DrawBattleMenu()
     {
         // Start drawing menu three lines below first line.
@@ -22,5 +30,11 @@ public class CommandPanel
         Console.WriteLine("|---------|---------|          ");
         Console.WriteLine("| {0}| {1}|          ", ItemLabel.PadRight(8), ChangeLabel.PadRight(8));
         Console.WriteLine("|---------|---------|          ");
+    }
+
+    public void SetBattleMenuCursor(int left, int top)
+    {
+        Console.SetCursorPosition(left, top);
+        Console.Write(">");
     }
 }
