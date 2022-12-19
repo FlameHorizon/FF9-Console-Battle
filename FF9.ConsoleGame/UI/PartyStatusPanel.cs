@@ -14,8 +14,7 @@ public class PartyStatusPanel
     private readonly int _turnIndicatorLeft;
 
     public PartyStatusPanel(BattleEngine btlEngine) : this(btlEngine, (31, 3))
-    {
-    }
+    { }
 
     public PartyStatusPanel(BattleEngine btlEngine, (int left, int top) panelLefTopPosition)
     {
@@ -28,52 +27,22 @@ public class PartyStatusPanel
 
     public void DrawCharactersInfo()
     {
-        Unit? first = _playerParty.FirstOrDefault();
-        Unit? second = _playerParty.Skip(1).FirstOrDefault();
-        Unit? third = _playerParty.Skip(2).FirstOrDefault();
-        Unit? forth = _playerParty.Skip(3).FirstOrDefault();
-
         Console.SetCursorPosition(_panelLefTopPosition.left, _panelLefTopPosition.top);
         Console.Write("|--------------------|");
 
         Console.SetCursorPosition(_panelLefTopPosition.left, _panelLefTopPosition.top + 1);
         Console.Write("|Name     |   HP|  MP|");
-        
-        if (first is not null)
-        {
-            Console.SetCursorPosition(_panelLefTopPosition.left, _panelLefTopPosition.top + 2);
-            Console.Write("| {0} | {1}| {2}|",
-                first.Name.PadRight(7),
-                first.Hp.ToString().PadLeft(4),
-                first.Mp.ToString().PadLeft(3));
-        }
 
-
-        if (second is not null)
+        int offset = 2;
+        foreach (Unit unit in _playerParty)
         {
-            Console.SetCursorPosition(_panelLefTopPosition.left, _panelLefTopPosition.top + 3);
+            Console.SetCursorPosition(_panelLefTopPosition.left, _panelLefTopPosition.top + offset);
             Console.Write("| {0} | {1}| {2}|",
-                second.Name.PadRight(7),
-                second.Hp.ToString().PadLeft(4),
-                second.Mp.ToString().PadLeft(3));
-        }
+                unit.Name.PadRight(7),
+                unit.Hp.ToString().PadLeft(4),
+                unit.Mp.ToString().PadLeft(3));
 
-        if (third is not null)
-        {
-            Console.SetCursorPosition(_panelLefTopPosition.left, _panelLefTopPosition.top + 4);
-            Console.Write("| {0} | {1}| {2}|",
-                third.Name.PadRight(7),
-                third.Hp.ToString().PadLeft(4),
-                third.Mp.ToString().PadLeft(3));
-        }
-
-        if (forth is not null)
-        {
-            Console.SetCursorPosition(_panelLefTopPosition.left, _panelLefTopPosition.top + 5);
-            Console.Write("| {0} | {1}| {2}|",
-                forth.Name.PadRight(7),
-                forth.Hp.ToString().PadLeft(4),
-                forth.Mp.ToString().PadLeft(3));
+            offset++;
         }
     }
 
