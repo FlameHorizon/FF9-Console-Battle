@@ -21,13 +21,15 @@ public class Game
         Console.CursorVisible = false;
     }
 
+    // Now I will be working on targeting system.
+    
     public void Start()
     {
         Console.WriteLine(" ");
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
         _commandPanel.DrawBattleMenu();
 
-        _partyStatusPanel.DrawCharactersInfo();
+        _partyStatusPanel.Draw();
         _partyStatusPanel.UpdatePlayerTurnIndicator();
 
         while (true)

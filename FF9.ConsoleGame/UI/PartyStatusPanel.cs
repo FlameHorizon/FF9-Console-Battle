@@ -22,7 +22,7 @@ public class PartyStatusPanel
         _turnIndicatorLeft = _panelPosition.left + 1;
     }
 
-    public void DrawCharactersInfo()
+    public void Draw()
     {
         Console.SetCursorPosition(_panelPosition.left, _panelPosition.top);
         Console.Write("|--------------------|");
