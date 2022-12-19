@@ -17,24 +17,6 @@ public class Game
     private int _battleMenuCursorPositionTop = BattleMenuPositionTop + 1;
     private BattleAction? _currentPlayerAction = BattleAction.Attack;
 
-    private const int SpaceBetweenEachCharacter = 1;
-
-    private const int FirstHpStartLeft = 43;
-    private const int FirstHpEndLeft = 47;
-    private const int FirstTop = 3 + SpaceBetweenMessageLineAndBattleMenu;
-
-    private const int SecondHpStartLeft = 43;
-    private const int SecondHpEndLeft = 47;
-    private const int SecondTop = FirstTop + SpaceBetweenEachCharacter;
-
-    private const int ThirdHpStartLeft = 43;
-    private const int ThirdHpEndLeft = 47;
-    private const int ThirdTop = SecondTop + SpaceBetweenEachCharacter;
-
-    private const int ForthHpStartLeft = 43;
-    private const int ForthHpEndLeft = 47;
-    private const int ForthTop = ThirdTop + SpaceBetweenEachCharacter;
-
     private const string AttackLabel = "Attack";
     private const string StealLabel = "Steal";
     private const string ItemLabel = "Item";
@@ -70,12 +52,10 @@ public class Game
         Console.WriteLine(" ");
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
         _commandPanel.DrawBattleMenu();
+        _commandPanel.SetBattleMenuCursor(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
         
         // NOTE: Since now, we have specialized class to updated command panel,
         // move logic of updating cursor position there as well.
-        
-        _commandPanel.SetBattleMenuCursor(_battleMenuCursorPositionLeft, _battleMenuCursorPositionTop);
-        
         _partyStatusPanel.DrawCharactersInfo();
         _partyStatusPanel.UpdatePlayerTurnIndicator();
 
@@ -184,11 +164,11 @@ public class Game
 
         if (target.IsPlayer)
         {
-            UpdatePlayerHealthOnConsole(
-                _playerParty.First(),
-                _playerParty.Skip(1).First(),
-                _playerParty.Skip(2).First(),
-                _playerParty.Skip(3).First());
+            _partyStatusPanel.UpdatePlayerHealthOnConsole(
+                _playerParty.FirstOrDefault(),
+                _playerParty.Skip(1).FirstOrDefault(),
+                _playerParty.Skip(2).FirstOrDefault(),
+                _playerParty.Skip(3).FirstOrDefault());
         }
 
         string msg;
@@ -219,85 +199,85 @@ public class Game
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
     }
 
-    private void UpdatePlayerHealthOnConsole(Unit first, Unit second, Unit third, Unit forth)
-    {
-        for (int left = FirstHpStartLeft; left < FirstHpEndLeft; left++)
-        {
-            Console.SetCursorPosition(left, FirstTop);
-            Console.Write(' ');
-        }
-
-        char[] split = first.Hp.ToString().ToCharArray();
-
-        var i = 0;
-        // Clear current value of Zidane's health.
-        for (int left = FirstHpStartLeft + (4 - split.Length); left < FirstHpEndLeft; left++)
-        {
-            Console.SetCursorPosition(left, FirstTop);
-            Console.Write(split[i]);
-
-            i++;
-        }
-        // 
-
-        for (int left = SecondHpStartLeft; left < SecondHpEndLeft; left++)
-        {
-            Console.SetCursorPosition(left, SecondTop);
-            Console.Write(' ');
-        }
-
-        char[] split2 = second.Hp.ToString().ToCharArray();
-
-        var i2 = 0;
-        // Clear current value of Zidane's health.
-        for (int left = SecondHpStartLeft + (4 - split2.Length); left < SecondHpEndLeft; left++)
-        {
-            Console.SetCursorPosition(left, SecondTop);
-            Console.Write(split2[i2]);
-
-            i2++;
-        }
-
-        //
-
-        for (int left = ThirdHpStartLeft; left < ThirdHpEndLeft; left++)
-        {
-            Console.SetCursorPosition(left, ThirdTop);
-            Console.Write(' ');
-        }
-
-        char[] split3 = third.Hp.ToString().ToCharArray();
-
-        var i3 = 0;
-        // Clear current value of Zidane's health.
-        for (int left = ThirdHpStartLeft + (4 - split3.Length); left < ThirdHpEndLeft; left++)
-        {
-            Console.SetCursorPosition(left, ThirdTop);
-            Console.Write(split3[i3]);
-
-            i3++;
-        }
-
-        //
-
-        for (int left = ForthHpStartLeft; left < ForthHpEndLeft; left++)
-        {
-            Console.SetCursorPosition(left, ForthTop);
-            Console.Write(' ');
-        }
-
-        char[] split4 = forth.Hp.ToString().ToCharArray();
-
-        var i4 = 0;
-        // Clear current value of Zidane's health.
-        for (int left = ForthHpStartLeft + (4 - split4.Length); left < ForthHpEndLeft; left++)
-        {
-            Console.SetCursorPosition(left, ForthTop);
-            Console.Write(split4[i4]);
-
-            i4++;
-        }
-    }
+    // private void UpdatePlayerHealthOnConsole(Unit first, Unit second, Unit third, Unit forth)
+    // {
+    //     for (int left = FirstHpStartLeft; left < FirstHpEndLeft; left++)
+    //     {
+    //         Console.SetCursorPosition(left, FirstTop);
+    //         Console.Write(' ');
+    //     }
+    //
+    //     char[] split = first.Hp.ToString().ToCharArray();
+    //
+    //     var i = 0;
+    //     // Clear current value of Zidane's health.
+    //     for (int left = FirstHpStartLeft + (4 - split.Length); left < FirstHpEndLeft; left++)
+    //     {
+    //         Console.SetCursorPosition(left, FirstTop);
+    //         Console.Write(split[i]);
+    //
+    //         i++;
+    //     }
+    //     // 
+    //
+    //     for (int left = SecondHpStartLeft; left < SecondHpEndLeft; left++)
+    //     {
+    //         Console.SetCursorPosition(left, SecondTop);
+    //         Console.Write(' ');
+    //     }
+    //
+    //     char[] split2 = second.Hp.ToString().ToCharArray();
+    //
+    //     var i2 = 0;
+    //     // Clear current value of Zidane's health.
+    //     for (int left = SecondHpStartLeft + (4 - split2.Length); left < SecondHpEndLeft; left++)
+    //     {
+    //         Console.SetCursorPosition(left, SecondTop);
+    //         Console.Write(split2[i2]);
+    //
+    //         i2++;
+    //     }
+    //
+    //     //
+    //
+    //     for (int left = ThirdHpStartLeft; left < ThirdHpEndLeft; left++)
+    //     {
+    //         Console.SetCursorPosition(left, ThirdTop);
+    //         Console.Write(' ');
+    //     }
+    //
+    //     char[] split3 = third.Hp.ToString().ToCharArray();
+    //
+    //     var i3 = 0;
+    //     // Clear current value of Zidane's health.
+    //     for (int left = ThirdHpStartLeft + (4 - split3.Length); left < ThirdHpEndLeft; left++)
+    //     {
+    //         Console.SetCursorPosition(left, ThirdTop);
+    //         Console.Write(split3[i3]);
+    //
+    //         i3++;
+    //     }
+    //
+    //     //
+    //
+    //     for (int left = ForthHpStartLeft; left < ForthHpEndLeft; left++)
+    //     {
+    //         Console.SetCursorPosition(left, ForthTop);
+    //         Console.Write(' ');
+    //     }
+    //
+    //     char[] split4 = forth.Hp.ToString().ToCharArray();
+    //
+    //     var i4 = 0;
+    //     // Clear current value of Zidane's health.
+    //     for (int left = ForthHpStartLeft + (4 - split4.Length); left < ForthHpEndLeft; left++)
+    //     {
+    //         Console.SetCursorPosition(left, ForthTop);
+    //         Console.Write(split4[i4]);
+    //
+    //         i4++;
+    //     }
+    // }
 
     private static bool ArrowKeyPressed(ConsoleKeyInfo keyPressed)
     {
