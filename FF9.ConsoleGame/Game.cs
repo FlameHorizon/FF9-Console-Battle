@@ -5,8 +5,6 @@ namespace FF9.ConsoleGame;
 
 public class Game
 {
-    // TODO: Players who are dead shouldn't be attacked by other player's units.
-
     private const int MillisecondsTimeout = 500;
 
     private const int MessageLinePositionTop = 0;
