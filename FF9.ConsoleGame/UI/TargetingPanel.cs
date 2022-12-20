@@ -7,10 +7,11 @@ public class TargetingPanel
     private readonly (int left, int top) _panelPosition;
     private readonly int _panelPositionRight;
     private readonly BattleEngine _btlEngine;
+    private readonly ConsoleColor _defaultConsoleColor;
 
     private readonly (int left, int top) _initialCursorPosition;
     private (int left, int top) _cursorPosition;
-    
+
     public TargetingPanel(BattleEngine btlEngine, (int left, int top) panelPosition)
     {
         _btlEngine = btlEngine;
@@ -18,8 +19,9 @@ public class TargetingPanel
         _panelPositionRight = _panelPosition.left + 23;
         _cursorPosition = (_panelPosition.left + 1, _panelPosition.top + 2);
         _initialCursorPosition = _cursorPosition;
+        _defaultConsoleColor = Console.ForegroundColor;
     }
-    
+
     public bool IsVisible { get; private set; }
     public Unit? Target { get; private set; }
 
@@ -30,35 +32,53 @@ public class TargetingPanel
         Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 1);
         Console.Write("|Enemy        | Player|");
 
-        int offset = 2;
-        foreach (Unit unit in _btlEngine.UnitsInBattle.Where(u => u.IsPlayer))
-        {
-            Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + offset);
-            Console.Write("|             | {0}|", unit.Name.PadRight(6));
-            offset++;
-        }
-        
-        offset = 2;
-        foreach (Unit unit in _btlEngine.UnitsInBattle.Where(u => u.IsPlayer == false))
+        DrawPlayers();
+        DrawEnemies();
+
+        SetCursorAtInitialPosition();
+        UpdateTarget();
+        IsVisible = true;
+    }
+
+    private void DrawEnemies()
+    {
+        var offset = 2;
+        IEnumerable<Unit> aliveEnemyUnits = _btlEngine.UnitsInBattle
+            .Where(u => u.IsPlayer == false && u.IsAlive);
+
+        foreach (Unit unit in aliveEnemyUnits)
         {
             Console.SetCursorPosition(_panelPosition.left + 2, _panelPosition.top + offset);
             Console.Write("{0}", unit.Name.PadRight(11));
             offset++;
         }
-        
-        Console.SetCursorPosition(_panelPosition.left + 2, _panelPosition.top + 2);
-        Console.Write("{0}", "Masked Man".PadRight(11));
-        
-        SetCursorAtInitialPosition();
-        UpdateTarget();
-        IsVisible = true;
+    }
+
+    private void DrawPlayers()
+    {
+        int offset = 2;
+        foreach (Unit unit in _btlEngine.UnitsInBattle.Where(u => u.IsPlayer))
+        {
+            Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + offset);
+            Console.Write("|             |       |");
+
+            Console.ForegroundColor = unit.IsAlive == false
+                ? ConsoleColor.DarkGray
+                : _defaultConsoleColor;
+
+            Console.SetCursorPosition(_panelPosition.left + 16, _panelPosition.top + offset);
+            Console.Write(unit.Name.PadRight(6));
+            Console.ForegroundColor = _defaultConsoleColor;
+
+            offset++;
+        }
     }
 
     private void SetCursorAtInitialPosition()
     {
         SetCursorAtInitialPosition(_cursorPosition.left, _cursorPosition.top);
     }
-    
+
     private void SetCursorAtInitialPosition(int left, int top)
     {
         Console.SetCursorPosition(left, top);
@@ -107,7 +127,7 @@ public class TargetingPanel
         Console.SetCursorPosition(_cursorPosition.left, _cursorPosition.top);
         Console.Write(">");
     }
-    
+
     private bool IsWithinBoundaries((int left, int top) offset)
     {
         return _cursorPosition.top + offset.top >= _panelPosition.top + 2
@@ -115,11 +135,11 @@ public class TargetingPanel
                && _cursorPosition.left + offset.left <= _panelPosition.left + 15
                && _cursorPosition.left + offset.left >= _panelPosition.left + 0;
     }
-    
+
     private void UpdateTarget()
     {
         string line = ConsoleExtensions.GetText(0, _cursorPosition.top);
-        
+
         string targetName = line.Split("|")
             .First(x => x.Contains('>'))
             .Replace(">", string.Empty)

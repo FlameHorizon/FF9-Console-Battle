@@ -5,6 +5,8 @@ namespace FF9.ConsoleGame;
 
 public class Game
 {
+    // TODO: Players who are dead shouldn't be attacked by other player's units.
+
     private const int MillisecondsTimeout = 500;
 
     private const int MessageLinePositionTop = 0;
@@ -23,8 +25,6 @@ public class Game
         _targetingPanel = new TargetingPanel(_btlEngine, panelPosition: (0, 2));
         Console.CursorVisible = false;
     }
-
-    // Now I will be working on targeting system.
 
     public void Start()
     {

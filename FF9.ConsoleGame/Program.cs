@@ -2,7 +2,6 @@
 
 using FF9.ConsoleGame;
 using FF9.ConsoleGame.Battle;
-
 IEnumerable<Unit> CreateEnemyParty()
 {
     int GetStealRateFromPercent(double value)
@@ -17,7 +16,7 @@ IEnumerable<Unit> CreateEnemyParty()
             .AsEnemy()
             .WithName("Masked Man")
             .WithLv(1)
-            .WithHp(1)
+            .WithHp(0)
             .WithStr(9)
             .WithSpirit(10)
             .WithAgl(19)
@@ -58,7 +57,7 @@ IEnumerable<Unit> CreatePlayerParty()
             .AsPlayer()
             .WithName("Zidane")
             .WithLv(1)
-            .WithHp(105)
+            .WithHp(0)
             .WithMp(36)
             .WithStr(21)
             .WithSpirit(23)
