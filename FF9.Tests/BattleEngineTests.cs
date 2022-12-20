@@ -168,8 +168,8 @@ public class BattleEngineTests
     {
         return new[]
         {
-            new UnitBuilder().AsEnemy().Build(),
-            new UnitBuilder().AsEnemy().Build()
+            new UnitBuilder().AsEnemy().WithHp(1).Build(),
+            new UnitBuilder().AsEnemy().WithHp(1).Build()
         };
     }
 
@@ -194,12 +194,16 @@ public class BattleEngineTests
     {
         IEnumerable<Unit> playerParty = new[]
         {
-            new UnitBuilder().AsPlayer().WithAgl(10).Build()
+            new UnitBuilder().AsPlayer().WithHp(1).WithAgl(10).Build(),
+            new UnitBuilder().AsPlayer().WithHp(1).Build(),
+            new UnitBuilder().AsPlayer().WithHp(1).Build(),
+            new UnitBuilder().AsPlayer().WithHp(1).Build()
+
         };
 
         IEnumerable<Unit> enemyParty = new[]
         {
-            new UnitBuilder().AsEnemy().Build()
+            new UnitBuilder().AsEnemy().WithHp(1).WithAgl(9).Build()
         };
 
         Unit highestAglPlayer = playerParty.MaxBy(p => p.Agl);
@@ -212,7 +216,7 @@ public class BattleEngineTests
 
         var be = new BattleEngine(playerParty, enemyParty);
 
-        be.UnitsInBattle.Should().HaveCount(2);
+        be.UnitsInBattle.Should().HaveCount(5);
         be.Queue.First().Should().Be(orderByAgl.First());
         be.Queue.Skip(1).First().Should().Be(orderByAgl.Skip(1).First());
     }
@@ -232,6 +236,7 @@ public class BattleEngineTests
             new UnitBuilder().AsPlayer().WithHp(0).Build(),
             new UnitBuilder().AsPlayer().WithHp(0).Build(),
         };
+        
         IEnumerable<Unit> enemyParty = GetAiUnits(1);
 
         var e = new BattleEngine(playerParty, enemyParty);
@@ -246,6 +251,7 @@ public class BattleEngineTests
             new UnitBuilder().AsPlayer().WithHp(1).Build(),
             new UnitBuilder().AsPlayer().WithHp(1).Build(),
         };
+        
         IEnumerable<Unit> enemyParty = GetAiUnits(1);
 
         var e = new BattleEngine(playerParty, enemyParty);
@@ -260,6 +266,7 @@ public class BattleEngineTests
             new UnitBuilder().AsPlayer().WithHp(1).Build(),
             new UnitBuilder().AsPlayer().WithHp(1).Build(),
         };
+        
         IEnumerable<Unit> enemyParty = new[]
         {
             new UnitBuilder().AsEnemy().WithHp(1).WithStr(2).Build(),
@@ -271,5 +278,45 @@ public class BattleEngineTests
         e.NextTurn();
 
         e.Queue.Should().NotContain(playerParty.First());
+    }
+
+    [Fact]
+    public void Queue_DoesNotQueueFirstUnit_WhenItIsDead()
+    {
+        IEnumerable<Unit> playerParty = new[]
+        {
+            new UnitBuilder().AsPlayer().WithName("a").WithHp(0).Build(),
+            new UnitBuilder().AsPlayer().WithName("b").WithHp(1).Build(),
+        };
+        
+        IEnumerable<Unit> enemyParty = new[]
+        {
+            new UnitBuilder().AsEnemy().WithHp(0).Build(),
+        };
+        
+        var e = new BattleEngine(playerParty, enemyParty);
+
+        e.Queue.Should().NotContain(playerParty.First());
+        e.Source.Should().Be(playerParty.Skip(1).First());
+    }
+    
+    [Fact]
+    public void Queue_DoesNotQueueFirstUnit_WhenItIsDead1()
+    {
+        IEnumerable<Unit> playerParty = new[]
+        {
+            new UnitBuilder().AsPlayer().WithName("a").WithHp(0).Build(),
+            new UnitBuilder().AsPlayer().WithName("b").WithHp(1).Build(),
+        };
+        
+        IEnumerable<Unit> enemyParty = new[]
+        {
+            new UnitBuilder().AsEnemy().WithHp(0).Build(),
+        };
+        
+        var e = new BattleEngine(playerParty, enemyParty);
+
+        e.Queue.Should().NotContain(playerParty.First());
+        e.Source.Should().Be(playerParty.Skip(1).First());
     }
 }

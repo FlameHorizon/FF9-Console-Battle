@@ -37,16 +37,16 @@ public class Game
 
         while (true)
         {
-            if (_btlEngine.IsTurnAi)
+            while (_btlEngine.IsTurnAi)
             {
                 BattleAction action = _btlEngine.AiAction();
                 HandleAction(action);
-            }
 
-            if (_btlEngine.PlayerDefeated)
-            {
-                WriteMessage("Player party has been defeated.");
-                break;
+                if (_btlEngine.PlayerDefeated)
+                {
+                    WriteMessage("Player party has been defeated.");
+                    break;
+                }
             }
 
             ConsoleKeyInfo keyPressed = Console.ReadKey(true);
@@ -161,7 +161,7 @@ public class Game
         else
         {
             // This is how AI makes decision who to target.
-            IEnumerable<Unit> list = _btlEngine.UnitsInBattle.Where(u => u.IsPlayer);
+            IEnumerable<Unit> list = _btlEngine.UnitsInBattle.Where(u => u.IsPlayer && u.IsAlive);
             int rand = Random.Shared.Next(1, list.Count() + 1);
             target = list.Skip(rand - 1).First();
         }

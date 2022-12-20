@@ -22,11 +22,19 @@ public class BattleEngine
         private init => _unitsInBattle = value.ToList();
     }
 
+    [Obsolete("BattleEngine is deprecated, please use " +
+              "BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>) " +
+              "or BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>, IPhysicalDamageCalculator")]
     public BattleEngine(IEnumerable<Unit> units)
-        : this(units.First(), units.Skip(1).First())
+        : this(
+            units,
+            new PhysicalDamageCalculator(new RandomProvider()))
     {
     }
 
+    [Obsolete("BattleEngine is deprecated, please use " +
+              "BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>) " +
+              "or BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>, IPhysicalDamageCalculator")]
     public BattleEngine(Unit unit1, Unit unit2)
         : this(
             unit1,
@@ -36,6 +44,9 @@ public class BattleEngine
     {
     }
 
+    [Obsolete("BattleEngine is deprecated, please use " +
+              "BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>) " +
+              "or BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>, IPhysicalDamageCalculator")]
     public BattleEngine(
         IEnumerable<Unit> units,
         IPhysicalDamageCalculator physicalDamageCalculator)
@@ -47,11 +58,21 @@ public class BattleEngine
     {
     }
 
+    [Obsolete("BattleEngine is deprecated, please use " +
+              "BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>) " +
+              "or BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>, IPhysicalDamageCalculator")]
     public BattleEngine(Unit unit1, Unit unit2, IStealCalculator stealCalculator)
-        : this(unit1, unit2, new PhysicalDamageCalculator(new RandomProvider()), stealCalculator)
+        : this(
+            unit1, 
+            unit2, 
+            new PhysicalDamageCalculator(new RandomProvider()), 
+            stealCalculator)
     {
     }
 
+    [Obsolete("BattleEngine is deprecated, please use " +
+              "BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>) " +
+              "or BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>, IPhysicalDamageCalculator")]
     public BattleEngine(
         Unit unit1,
         Unit unit2,
@@ -94,6 +115,7 @@ public class BattleEngine
     private void InitializeQueue()
     {
         UnitsInBattle
+            .Where(u => u.IsAlive)
             .OrderByDescending(u => u.Agl)
             .ToList()
             .ForEach(u => _queue.Enqueue(u));
