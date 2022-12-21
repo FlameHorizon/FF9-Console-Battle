@@ -9,7 +9,6 @@ public class PartyStatusPanel
     private readonly List<Unit> _playerParty;
 
     private readonly (int left, int top) _panelPosition;
-    private readonly (int right, int bottom) _panelRightBottomPosition;
     private (int left, int top) _turnIndicatorPosition;
 
     private readonly int _turnIndicatorLeft;
@@ -19,7 +18,6 @@ public class PartyStatusPanel
         _btlEngine = btlEngine;
         _playerParty = _btlEngine.PlayerUnits.ToList();
         _panelPosition = panelPosition;
-        _panelRightBottomPosition = (0, _panelPosition.top + 6);
         _turnIndicatorLeft = _panelPosition.left + 1;
     }
 
