@@ -1,4 +1,5 @@
 ﻿using FF9.ConsoleGame.Battle;
+using FF9.ConsoleGame.Battle.Interfaces;
 using FF9.ConsoleGame.UI;
 
 namespace FF9.ConsoleGame;
@@ -14,6 +15,7 @@ public class Game
     private readonly CommandPanel _commandPanel;
     private readonly PartyStatusPanel _partyStatusPanel;
     private readonly TargetingPanel _targetingPanel;
+    private readonly ItemPanel _itemPanel;
 
     public Game(BattleEngine btlEngine)
     {
@@ -21,6 +23,7 @@ public class Game
         _commandPanel = new CommandPanel(panelPosition: (0, 2));
         _partyStatusPanel = new PartyStatusPanel(_btlEngine, panelPosition: (30, 2));
         _targetingPanel = new TargetingPanel(_btlEngine, panelPosition: (0, 2));
+        _itemPanel = new ItemPanel(_btlEngine, panelPosition: (0, 2));
         Console.CursorVisible = false;
     }
 
@@ -62,6 +65,13 @@ public class Game
                     _targetingPanel.Hide();
                     _commandPanel.Draw();
                 }
+                else if (_itemPanel.IsVisible && _itemPanel.Item != null)
+                {
+                    _btlEngine.SetItem(_itemPanel.Item);
+                    HandleAction(_commandPanel.CurrentPlayerAction);
+                    _targetingPanel.Hide();
+                    _commandPanel.Draw();
+                }
                 else if (_commandPanel.IsVisible)
                 {
                     if (_commandPanel.CurrentPlayerAction == BattleAction.Defend)
@@ -69,6 +79,11 @@ public class Game
                         _commandPanel.Hide();
                         HandleAction(_commandPanel.CurrentPlayerAction);
                         _commandPanel.Draw();
+                    }
+                    else if (_commandPanel.CurrentPlayerAction == BattleAction.UseItem)
+                    {
+                        _commandPanel.Hide();
+                        _itemPanel.Draw();
                     }
                     else
                     {

@@ -140,4 +140,9 @@ public class BattleEngine
 
         Target = newTarget;
     }
+
+    public void SetItem(Item? newItem)
+    {
+        throw new NotImplementedException();
+    }
 }

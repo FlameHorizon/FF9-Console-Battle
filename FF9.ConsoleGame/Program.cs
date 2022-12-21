@@ -36,16 +36,6 @@ IEnumerable<Unit> CreateEnemyParty()
                 GetStealRateFromPercent(0.25d),
                 GetStealRateFromPercent(0.0625d),
             })
-            .Build(),
-        
-        new UnitBuilder()
-            .AsEnemy()
-            .WithName("Masked Man 2")
-            .WithLv(1)
-            .WithHp(100)
-            .WithStr(9)
-            .WithSpirit(10)
-            .WithAgl(19)
             .Build()
     };
     return units;
@@ -70,7 +60,7 @@ IEnumerable<Unit> CreatePlayerParty()
             .AsPlayer()
             .WithName("Cinna")
             .WithLv(1)
-            .WithHp(0)
+            .WithHp(75)
             .WithMp(32)
             .WithStr(21)
             .WithSpirit(23)
