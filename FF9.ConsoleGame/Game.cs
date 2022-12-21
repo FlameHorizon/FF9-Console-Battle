@@ -64,8 +64,17 @@ public class Game
                 }
                 else if (_commandPanel.IsVisible)
                 {
-                    _commandPanel.Hide();
-                    _targetingPanel.Draw();
+                    if (_commandPanel.CurrentPlayerAction == BattleAction.Defend)
+                    {
+                        _commandPanel.Hide();
+                        HandleAction(_commandPanel.CurrentPlayerAction);
+                        _commandPanel.Draw();
+                    }
+                    else
+                    {
+                        _commandPanel.Hide();
+                        _targetingPanel.Draw();
+                    }
                 }
             }
 

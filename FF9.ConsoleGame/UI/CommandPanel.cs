@@ -12,6 +12,7 @@ public class CommandPanel
     private (int left, int top) _cursorPosition;
     private readonly (int left, int top) _panelPosition;
     private readonly int _panelPositionRight;
+    private readonly (int left, int top) _initialCursorPosition;
 
     public BattleAction? CurrentPlayerAction { get; private set; } = BattleAction.Attack;
     public bool IsVisible { get; private set; }
@@ -20,6 +21,7 @@ public class CommandPanel
     {
         _panelPosition = panelPosition;
         _cursorPosition = (_panelPosition.left + 1, _panelPosition.top + 1);
+        _initialCursorPosition = _cursorPosition;
         _panelPositionRight = _panelPosition.left + 21;
     }
 
@@ -53,7 +55,7 @@ public class CommandPanel
 
     private void SetCursorAtInitialPositionInBattleMenu()
     {
-        SetBattleMenuCursor(_cursorPosition.left, _cursorPosition.top);
+        SetBattleMenuCursor(_initialCursorPosition.left, _initialCursorPosition.top);
     }
 
     private void SetBattleMenuCursor(int left, int top)
