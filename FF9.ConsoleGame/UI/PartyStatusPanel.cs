@@ -13,7 +13,7 @@ public class PartyStatusPanel
     private (int left, int top) _turnIndicatorPosition;
 
     private readonly int _turnIndicatorLeft;
-    
+
     public PartyStatusPanel(BattleEngine btlEngine, (int left, int top) panelPosition)
     {
         _btlEngine = btlEngine;
@@ -54,42 +54,53 @@ public class PartyStatusPanel
         // Erase previous turn indicator
         if (_turnIndicatorPosition != (0, 0))
         {
-            Console.SetCursorPosition(_turnIndicatorPosition.left, _turnIndicatorPosition.top);
+            Console.SetCursorPosition(
+                _turnIndicatorPosition.left,
+                _turnIndicatorPosition.top);
             Console.Write(" ");
         }
-        
-        Console.SetCursorPosition(0, _panelRightBottomPosition.bottom + 1);
-        
-        string lookFor = " " + _btlEngine.Source.Name;
 
-        List<KernelHelper.COORD> coords = null!;
-        const int offset = 2;
-        for (var i = 0; i < 4; i++)
+        // At this point, we know who's turn it is how.
+        // We need to find just Y (top) coordinate to put the turn indicator (*).
+        // To find Y, we are looping over (at most 4) lines in area
+        // where status panel is. Once we find unit name, we will use position of
+        // that line (Y) to put the * sign.
+        string name = _btlEngine.Source.Name;
+        List<KernelHelper.COORD> coords = FindPlayerNameCoords(name);
+        if (coords.Count == 0)
         {
-            coords = ConsoleExtensions.IndexOfInConsole(lookFor,
+            throw new InvalidOperationException($"Can't find unit name {name} in" +
+                                                "party status panel.");
+        }
+        
+        int top = coords.First().Y;
+        _turnIndicatorPosition = (_turnIndicatorLeft, top);
+
+        if (top == 0)
+        {
+            // First observed while using defend action.
+            // Might be because before AI was taking its turn...
+            Debug.WriteLine($"coords.First().Y is 0. " +
+                            $"Might be bug in {nameof(UpdatePlayerTurnIndicator)}");
+        }
+
+        DrawTurnIndicator(_turnIndicatorLeft, top);
+    }
+
+    private List<KernelHelper.COORD> FindPlayerNameCoords(string lookFor)
+    {
+        List<KernelHelper.COORD> coords = new();
+        const int offset = 2;
+        for (var i = 0; i < _playerParty.Count; i++)
+        {
+            coords = ConsoleExtensions.IndexOfInConsole(" " + lookFor,
                 (_panelPosition.left, _panelPosition.top + offset + i));
 
             if (coords.Any())
                 break;
         }
-        
-        if (coords is null)
-        {
-            throw new ArgumentNullException();
-        }
-        
 
-        _turnIndicatorPosition = (_turnIndicatorLeft, coords.First().Y);
-
-        if (coords.First().Y == 0)
-        {
-            // First observed while using defend action.
-            // Might be because before AI was taking its turn...
-            Debug.WriteLine($"coords.First().Y is 0. " +
-                        $"Might be bug in {nameof(UpdatePlayerTurnIndicator)}");
-        }
-        
-        DrawTurnIndicator(_turnIndicatorLeft, coords.First().Y);
+        return coords;
     }
 
     private static void DrawTurnIndicator(int left, int top)
@@ -112,7 +123,7 @@ public class PartyStatusPanel
     {
         const int firstHpLine = 4;
         int top = firstHpLine + (pos - 1);
-        
+
         // Left coords. are always the same for every character.
         (int start, int end) hpRange = (_panelPosition.left + 12, _panelPosition.left + 12 + 4);
 
