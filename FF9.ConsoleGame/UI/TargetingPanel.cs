@@ -48,7 +48,9 @@ public class TargetingPanel
 
         foreach (Unit unit in aliveEnemyUnits)
         {
-            Console.SetCursorPosition(_panelPosition.left + 2, _panelPosition.top + offset);
+            Console.SetCursorPosition(_panelPosition.left + 2, 
+                _panelPosition.top + offset);
+            
             Console.Write("{0}", unit.Name.PadRight(11));
             offset++;
         }
@@ -66,7 +68,9 @@ public class TargetingPanel
                 ? ConsoleColor.DarkGray
                 : _defaultConsoleColor;
 
-            Console.SetCursorPosition(_panelPosition.left + 16, _panelPosition.top + offset);
+            Console.SetCursorPosition(_panelPosition.left + 16, 
+                _panelPosition.top + offset);
+            
             Console.Write(unit.Name.PadRight(6));
             Console.ForegroundColor = _defaultConsoleColor;
 
@@ -89,7 +93,16 @@ public class TargetingPanel
     {
         ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top);
         ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 1);
-        ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 2);
+        int characterRows = Math.Max(
+            _btlEngine.UnitsInBattle.Count(u => u.IsPlayer),
+            _btlEngine.UnitsInBattle.Count(u => u.IsPlayer == false));
+
+        for (int i = 0; i < characterRows; i++)
+        {
+            ConsoleExtensions.ClearRange(
+                (_panelPosition.left, _panelPositionRight), 
+                _panelPosition.top + 2 + i);
+        }
 
         _cursorPosition = _initialCursorPosition;
         IsVisible = false;
