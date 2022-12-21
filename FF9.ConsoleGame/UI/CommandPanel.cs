@@ -55,7 +55,7 @@ public class CommandPanel
 
     private void SetCursorAtInitialPositionInBattleMenu()
     {
-        SetBattleMenuCursor(_initialCursorPosition.left, _initialCursorPosition.top);
+        SetBattleMenuCursor(_cursorPosition.left, _cursorPosition.top);
     }
 
     private void SetBattleMenuCursor(int left, int top)
@@ -136,6 +136,8 @@ public class CommandPanel
         ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 4);
         ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 5);
         ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 6);
+
+        _cursorPosition = _initialCursorPosition;
         IsVisible = false;
     }
 }
