@@ -120,8 +120,8 @@ public class TargetingPanel
         Console.SetCursorPosition(_cursorPosition.left, _cursorPosition.top);
         Console.Write(" ");
 
-        _cursorPosition =
-            (_cursorPosition.left + offset.left, _cursorPosition.top + offset.top);
+        _cursorPosition =  (_cursorPosition.left + offset.left, 
+            _cursorPosition.top + offset.top);
 
         // Write new cursor location.
         Console.SetCursorPosition(_cursorPosition.left, _cursorPosition.top);
@@ -147,6 +147,7 @@ public class TargetingPanel
 
         Target = string.IsNullOrEmpty(targetName)
             ? null
-            : _btlEngine.UnitsInBattle.First(u => u.Name == targetName);
+            : _btlEngine.UnitsInBattle.FirstOrDefault(
+                u => u.Name == targetName && u.IsAlive);
     }
 }
