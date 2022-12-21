@@ -5,24 +5,11 @@ namespace FF9.ConsoleGame.Battle;
 public class BattleEngine
 {
     private Queue<Unit> _queue = new();
-    
-    // Here is an opportunity to allow clients to see which units are player
-    // controlled and which are AI.
-    private readonly IEnumerable<Unit> _playerUnits;
-    private readonly IEnumerable<Unit> _enemyUnits;
     private readonly IPhysicalDamageCalculator _physicalDamageCalc;
     private readonly IStealCalculator _stealCalculator;
     private readonly List<Unit> _unitsInBattle;
     private Unit? _target;
     private List<Item> _playerInventory;
-
-    public int LastDamageValue { get; private set; }
-
-    public IEnumerable<Unit> UnitsInBattle
-    {
-        get => _unitsInBattle;
-        private init => _unitsInBattle = value.ToList();
-    }
 
     public BattleEngine(
         IEnumerable<Unit> playerUnits,
@@ -31,12 +18,12 @@ public class BattleEngine
         IStealCalculator stealCalculator,
         IEnumerable<Item> playerInventory)
     {
-        _playerUnits = playerUnits;
-        _enemyUnits = enemyUnits;
+        PlayerUnits = playerUnits;
+        EnemyUnits = enemyUnits;
 
         _unitsInBattle = new List<Unit>();
-        _unitsInBattle.AddRange(_playerUnits);
-        _unitsInBattle.AddRange(_enemyUnits);
+        _unitsInBattle.AddRange(PlayerUnits);
+        _unitsInBattle.AddRange(EnemyUnits);
 
         _physicalDamageCalc = physicalDamageCalculator;
         _stealCalculator = stealCalculator;
@@ -58,6 +45,13 @@ public class BattleEngine
     }
 
     public IEnumerable<Unit> Queue => _queue;
+    
+    public IEnumerable<Unit> PlayerUnits { get; init; }
+    public IEnumerable<Unit> EnemyUnits { get; init; }
+    public Item? LastStolenItem { get; private set; }
+    public bool IsTurnAi => Source.IsPlayer == false;
+    public IEnumerable<Item> PlayerInventory => _playerInventory;
+    public int LastDamageValue { get; private set; }
 
     /// <summary>
     /// Returns Unit which is now taking it's turn.
@@ -67,7 +61,6 @@ public class BattleEngine
     /// <summary>
     /// Returns Unit which is a target of an action taken by Source.
     /// </summary>
-    /// It would be good to implement targeting mechanism next.
     public Unit Target { get; private set; }
 
     public bool EnemyDefeated
@@ -79,10 +72,7 @@ public class BattleEngine
                 .All(u => u.IsAlive == false);
         }
     }
-
-    public Item? LastStolenItem { get; private set; }
-    public bool IsTurnAi => Source.IsPlayer == false;
-
+    
     public bool PlayerDefeated
     {
         get
@@ -92,8 +82,12 @@ public class BattleEngine
                 .All(u => u.IsAlive == false);
         }
     }
-
-    public IEnumerable<Item> PlayerInventory => _playerInventory;
+    
+    public IEnumerable<Unit> UnitsInBattle
+    {
+        get => _unitsInBattle;
+        private init => _unitsInBattle = value.ToList();
+    }
 
     public void TurnAttack() => TurnAttack(Source, Target);
     public void TurnAttack(Unit target) => TurnAttack(Source, target);
