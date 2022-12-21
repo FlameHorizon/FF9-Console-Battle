@@ -1,4 +1,5 @@
-﻿using FF9.ConsoleGame.Battle;
+﻿using System.Diagnostics;
+using FF9.ConsoleGame.Battle;
 
 namespace FF9.ConsoleGame.UI;
 
@@ -56,13 +57,38 @@ public class PartyStatusPanel
             Console.SetCursorPosition(_turnIndicatorPosition.left, _turnIndicatorPosition.top);
             Console.Write(" ");
         }
-
+        
         Console.SetCursorPosition(0, _panelRightBottomPosition.bottom + 1);
-        // Find top position of a player, which is now taking turn on the console.
+        
         string lookFor = " " + _btlEngine.Source.Name;
-        var coords = ConsoleExtensions.IndexOfInConsole(lookFor);
+
+        List<KernelHelper.COORD> coords = null!;
+        const int offset = 2;
+        for (var i = 0; i < 4; i++)
+        {
+            coords = ConsoleExtensions.IndexOfInConsole(lookFor,
+                (_panelPosition.left, _panelPosition.top + offset + i));
+
+            if (coords.Any())
+                break;
+        }
+        
+        if (coords is null)
+        {
+            throw new ArgumentNullException();
+        }
+        
 
         _turnIndicatorPosition = (_turnIndicatorLeft, coords.First().Y);
+
+        if (coords.First().Y == 0)
+        {
+            // First observed while using defend action.
+            // Might be because before AI was taking its turn...
+            Debug.WriteLine($"coords.First().Y is 0. " +
+                        $"Might be bug in {nameof(UpdatePlayerTurnIndicator)}");
+        }
+        
         DrawTurnIndicator(_turnIndicatorLeft, coords.First().Y);
     }
 

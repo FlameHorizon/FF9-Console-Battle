@@ -175,12 +175,12 @@ public class Game
 
         _btlEngine.TurnAttack(target);
 
-        if (target.IsPlayer)
-            _partyStatusPanel.UpdatePlayerHealthOnConsole();
+        _partyStatusPanel.UpdatePlayerHealthOnConsole();
 
         string msg = _btlEngine.LastDamageValue == 0
             ? $"{_btlEngine.Source.Name} missed attack."
-            : $"{_btlEngine.Source.Name} dealt {_btlEngine.LastDamageValue} damage to {target.Name}";
+            : $"{_btlEngine.Source.Name} dealt {_btlEngine.LastDamageValue} " +
+              $"damage to {target.Name}";
 
         WriteMessage(msg);
 

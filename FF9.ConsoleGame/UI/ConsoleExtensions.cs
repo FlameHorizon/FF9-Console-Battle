@@ -5,6 +5,58 @@ namespace FF9.ConsoleGame.UI;
 
 public static class ConsoleExtensions
 {
+    public static List<COORD> IndexOfInConsole(
+        string text,
+        (int left, int top) startPos)
+    {
+        return IndexOfInConsole(new[] { text }, startPos);
+    }
+
+    /// <summary>
+    /// Returns position of the string starting from given position and
+    /// going through entire line.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="startPos"></param>
+    /// <returns></returns>
+    public static List<COORD> IndexOfInConsole(
+        string[] text,
+        (int left, int top) startPos)
+    {
+        if (text == null) throw new ArgumentNullException(nameof(text));
+        
+        var coords = new List<COORD>();
+
+        // Get a handle for the console
+        nint stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+
+        // Get Console Info
+        CONSOLE_SCREEN_BUFFER_INFO consoleInfo = GetConsoleInfo(stdout);
+
+        string line = GetText(startPos.left, startPos.top, stdout);
+
+        // Search through the line and put the results in coords
+        foreach (string t in text)
+        {
+            var xPos = 0;
+            while (true)
+            {
+                var pos = line.IndexOf(t, xPos);
+                if (pos == -1)
+                    break;
+                
+                coords.Add(new COORD
+                {
+                    X = (short)((short)startPos.left + pos - 1),
+                    Y = (short)startPos.top
+                });
+                xPos = pos + 1;
+            }
+        }
+        
+        return coords;
+    }
+
     public static void ClearRange((int start, int end) leftRange, int top)
     {
         for (int left = leftRange.start; left < leftRange.end; left++)
@@ -13,17 +65,17 @@ public static class ConsoleExtensions
             Console.Write(' ');
         }
     }
-    
+
     public static void ClearLine(int top)
     {
         int currLeft = Console.CursorLeft;
         int currTop = Console.CursorTop;
-        
+
         Console.SetCursorPosition(0, top);
         Console.Write(new string(' ', Console.WindowWidth));
         Console.SetCursorPosition(currLeft, currTop);
     }
-    
+
     // <summary>
     /// Get current cursor position from console window.
     /// In .Net 5 > use Console.GetCursorPosition
