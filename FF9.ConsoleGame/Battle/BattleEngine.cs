@@ -7,7 +7,7 @@ public class BattleEngine
     private Queue<Unit> _queue = new();
     private readonly IPhysicalDamageCalculator _physicalDamageCalc;
     private readonly IStealCalculator _stealCalculator;
-    private readonly List<Unit> _unitsInBattle;
+    private readonly List<Unit>_unitsInBattle;
     private Unit? _target;
     private List<Item> _playerInventory;
 
@@ -63,14 +63,8 @@ public class BattleEngine
     /// </summary>
     public Unit Target { get; private set; }
 
-    public bool EnemyDefeated
-    {
-        get
-        {
-            return EnemyUnits.All(u => u.IsAlive == false);
-        }
-    }
-    
+    public bool EnemyDefeated => EnemyUnits.All(u => u.IsAlive == false);
+
     public bool PlayerDefeated => PlayerUnits.All(u => u.IsAlive == false);
 
     public IEnumerable<Unit> UnitsInBattle
@@ -85,11 +79,12 @@ public class BattleEngine
     public void TurnAttack(Unit source, Unit target)
     {
         if (!ReferenceEquals(_target, target))
-        {
             _target = target;
-        }
 
-        int damageTaken = _physicalDamageCalc.Calculate(source.Damage, source.PhysicalHitRate, target);
+        int damageTaken = _physicalDamageCalc.Calculate(
+            source.Damage, 
+            source.PhysicalHitRate, 
+            target);
 
         LastDamageValue = damageTaken;
         target.TakeDamage(damageTaken);
@@ -109,9 +104,7 @@ public class BattleEngine
     {
         // Remove unit which is dead from the queue.
         if (_target?.IsAlive == false)
-        {
             _queue = new Queue<Unit>(_queue.Where(u => u != _target));
-        }
 
         Unit u = _queue.Dequeue();
         _queue.Enqueue(u);
@@ -138,10 +131,7 @@ public class BattleEngine
         LastStolenItem = stolenItem;
     }
 
-    public BattleAction AiAction()
-    {
-        return BattleAction.Attack;
-    }
+    public BattleAction AiAction() => BattleAction.Attack;
 
     public void SetTarget(Unit? newTarget)
     {
