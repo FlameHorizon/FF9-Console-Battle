@@ -5,7 +5,7 @@ namespace FF9.ConsoleGame;
 
 public class Game
 {
-    private const int MillisecondsTimeout = 500;
+    private const int MillisecondsTimeout = 750;
 
     private const int MessageLinePositionTop = 0;
     private const int MessageLinePositionLeft = 0;

@@ -5,14 +5,16 @@ namespace FF9.ConsoleGame.Battle;
 public class BattleEngine
 {
     private Queue<Unit> _queue = new();
+    
+    // Here is an opportunity to allow clients to see which units are player
+    // controlled and which are AI.
     private readonly IEnumerable<Unit> _playerUnits;
     private readonly IEnumerable<Unit> _enemyUnits;
-    private readonly Unit _unit1;
-    private readonly Unit _unit2;
     private readonly IPhysicalDamageCalculator _physicalDamageCalc;
     private readonly IStealCalculator _stealCalculator;
     private readonly List<Unit> _unitsInBattle;
     private Unit? _target;
+    private List<Item> _playerInventory;
 
     public int LastDamageValue { get; private set; }
 
@@ -22,79 +24,12 @@ public class BattleEngine
         private init => _unitsInBattle = value.ToList();
     }
 
-    [Obsolete("BattleEngine is deprecated, please use " +
-              "BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>) " +
-              "or BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>, IPhysicalDamageCalculator")]
-    public BattleEngine(IEnumerable<Unit> units)
-        : this(
-            units,
-            new PhysicalDamageCalculator(new RandomProvider()))
-    {
-    }
-
-    [Obsolete("BattleEngine is deprecated, please use " +
-              "BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>) " +
-              "or BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>, IPhysicalDamageCalculator")]
-    public BattleEngine(Unit unit1, Unit unit2)
-        : this(
-            unit1,
-            unit2,
-            new PhysicalDamageCalculator(new RandomProvider()),
-            new StealCalculator())
-    {
-    }
-
-    [Obsolete("BattleEngine is deprecated, please use " +
-              "BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>) " +
-              "or BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>, IPhysicalDamageCalculator")]
     public BattleEngine(
-        IEnumerable<Unit> units,
-        IPhysicalDamageCalculator physicalDamageCalculator)
-        : this(
-            units.First(),
-            units.Skip(1).First(),
-            physicalDamageCalculator,
-            new StealCalculator())
-    {
-    }
-
-    [Obsolete("BattleEngine is deprecated, please use " +
-              "BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>) " +
-              "or BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>, IPhysicalDamageCalculator")]
-    public BattleEngine(Unit unit1, Unit unit2, IStealCalculator stealCalculator)
-        : this(
-            unit1, 
-            unit2, 
-            new PhysicalDamageCalculator(new RandomProvider()), 
-            stealCalculator)
-    {
-    }
-
-    [Obsolete("BattleEngine is deprecated, please use " +
-              "BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>) " +
-              "or BattleEngine(IEnumerable<Unit>, IEnumerable<Unit>, IPhysicalDamageCalculator")]
-    public BattleEngine(
-        Unit unit1,
-        Unit unit2,
+        IEnumerable<Unit> playerUnits,
+        IEnumerable<Unit> enemyUnits,
         IPhysicalDamageCalculator physicalDamageCalculator,
-        IStealCalculator stealCalculator)
-    {
-        _unit1 = unit1;
-        _unit2 = unit2;
-        UnitsInBattle = new List<Unit> { _unit1, _unit2 };
-        _physicalDamageCalc = physicalDamageCalculator;
-        _stealCalculator = stealCalculator;
-
-        InitializeQueue();
-    }
-
-    public BattleEngine(IEnumerable<Unit> playerUnits, IEnumerable<Unit> enemyUnits)
-        : this(playerUnits, enemyUnits, new PhysicalDamageCalculator(new RandomProvider()))
-    {
-    }
-
-    public BattleEngine(IEnumerable<Unit> playerUnits, IEnumerable<Unit> enemyUnits,
-        IPhysicalDamageCalculator physicalDamageCalculator)
+        IStealCalculator stealCalculator,
+        IEnumerable<Item> playerInventory)
     {
         _playerUnits = playerUnits;
         _enemyUnits = enemyUnits;
@@ -104,7 +39,8 @@ public class BattleEngine
         _unitsInBattle.AddRange(_enemyUnits);
 
         _physicalDamageCalc = physicalDamageCalculator;
-        _stealCalculator = new StealCalculator();
+        _stealCalculator = stealCalculator;
+        _playerInventory = playerInventory.ToList();
 
         InitializeQueue();
     }
@@ -156,6 +92,8 @@ public class BattleEngine
                 .All(u => u.IsAlive == false);
         }
     }
+
+    public IEnumerable<Item> PlayerInventory => _playerInventory;
 
     public void TurnAttack() => TurnAttack(Source, Target);
     public void TurnAttack(Unit target) => TurnAttack(Source, target);
@@ -212,7 +150,7 @@ public class BattleEngine
         if (stolenItem is null)
             return; //CouldNotStealAnything
 
-        Source.PutIntoInventory(stolenItem);
+        _playerInventory.Add(stolenItem);
         LastStolenItem = stolenItem;
     }
 

@@ -14,7 +14,10 @@ public class BattleEngineTests
         Unit thief = InitialUnit.Thief();
         Unit warrior = InitialUnit.Warrior();
 
-        var engine = new BattleEngine(thief, warrior);
+        var engine = new BattleEngineBuilder()
+            .WithPlayerUnit(thief)
+            .WithPlayerUnit(warrior)
+            .Build();
 
         engine.Queue.First().Should().Be(thief);
         engine.Queue.Skip(1).First().Should().Be(warrior);
@@ -28,7 +31,11 @@ public class BattleEngineTests
 
         int initialHp = warrior.Hp;
 
-        var engine = new BattleEngine(warrior, thief);
+        var engine = new BattleEngineBuilder()
+            .WithPlayerUnit(thief)
+            .WithPlayerUnit(warrior)
+            .Build();
+        
         engine.TurnAttack(source: thief, target: warrior);
 
         warrior.Hp.Should().Be(initialHp - engine.LastDamageValue);
@@ -39,8 +46,11 @@ public class BattleEngineTests
     {
         Unit thief = InitialUnit.Thief();
         Unit warrior = InitialUnit.Warrior();
-
-        var engine = new BattleEngine(warrior, thief);
+        
+        var engine = new BattleEngineBuilder()
+            .WithPlayerUnit(warrior)
+            .WithPlayerUnit(thief)
+            .Build();
 
         engine.Source.Should().Be(thief);
 
@@ -55,7 +65,10 @@ public class BattleEngineTests
         Unit thief = InitialUnit.Thief();
         Unit warrior = InitialUnit.Warrior();
 
-        var engine = new BattleEngine(warrior, thief);
+        var engine = new BattleEngineBuilder()
+            .WithPlayerUnit(thief)
+            .WithPlayerUnit(warrior)
+            .Build();
 
         engine.UnitsInBattle.Should().HaveCount(2);
         engine.UnitsInBattle.Should().OnlyHaveUniqueItems();
@@ -67,7 +80,11 @@ public class BattleEngineTests
         Unit thief = InitialUnit.Thief();
         Unit warrior = InitialUnit.Warrior();
 
-        var engine = new BattleEngine(warrior, thief);
+        var engine = new BattleEngineBuilder()
+            .WithPlayerUnit(thief)
+            .WithPlayerUnit(warrior)
+            .Build();
+        
         engine.TurnDefence();
         engine.NextTurn();
         engine.TurnAttack(thief);
@@ -86,10 +103,19 @@ public class BattleEngineTests
 
         IStealCalculator stealCalculator = GetAlwaysStealCalculator();
 
-        var engine = new BattleEngine(thief, warrior, stealCalculator);
+        var engine = MakeEngine(thief, warrior, stealCalculator);
         engine.TurnSteal(warrior);
 
         engine.LastStolenItem.Should().BeOfType(typeof(WeaponItem));
+    }
+
+    private static BattleEngine MakeEngine(Unit thief, Unit warrior, IStealCalculator stealCalculator)
+    {
+        return new BattleEngineBuilder()
+            .WithPlayerUnit(thief)
+            .WithEnemyUnit(warrior)
+            .WithStealCalculator(stealCalculator)
+            .Build();
     }
 
     [Fact]
@@ -103,26 +129,13 @@ public class BattleEngineTests
 
         IStealCalculator stealCalculator = GetAlwaysStealCalculator();
 
-        var engine = new BattleEngine(thief, warrior, stealCalculator);
+        var engine = MakeEngine(thief, warrior, stealCalculator);
         engine.TurnSteal(warrior);
         engine.NextTurn();
 
         engine.LastStolenItem.Should().BeNull();
     }
-
-    [Fact]
-    public void LastDamage_Value_ShouldBeErasedAfterNextTurn()
-    {
-        var units = new List<Unit> { InitialUnit.Thief(), InitialUnit.Warrior() };
-        var engine = new BattleEngine(units, GetAlwaysHitTenCalculator());
-
-        engine.TurnAttack(units.Skip(1).First());
-        engine.LastDamageValue.Should().Be(10);
-
-        engine.NextTurn();
-        engine.LastDamageValue.Should().Be(0);
-    }
-
+    
     private static IStealCalculator GetAlwaysStealCalculator()
     {
         Mock<IRandomProvider> randomProvider = new();
@@ -133,6 +146,29 @@ public class BattleEngineTests
 
         IStealCalculator calculator = new StealCalculator(randomProvider.Object);
         return calculator;
+    }
+
+    [Fact]
+    public void LastDamage_Value_ShouldBeErasedAfterNextTurn()
+    {
+        Unit thief = InitialUnit.Thief();
+        Unit warrior = InitialUnit.Warrior();
+        var units = new List<Unit> { thief, warrior };
+
+        IPhysicalDamageCalculator alwaysHitTenCalculator =
+            GetAlwaysHitTenCalculator();
+        
+        var engine = new BattleEngineBuilder()
+            .WithPlayerUnit(thief)
+            .WithEnemyUnit(warrior)
+            .WithPhysicalDamageCalculator(alwaysHitTenCalculator)
+            .Build();
+
+        engine.TurnAttack(units.Skip(1).First());
+        engine.LastDamageValue.Should().Be(10);
+
+        engine.NextTurn();
+        engine.LastDamageValue.Should().Be(0);
     }
 
     private static IPhysicalDamageCalculator GetAlwaysHitTenCalculator()
@@ -152,25 +188,22 @@ public class BattleEngineTests
         Unit player = new UnitBuilder().WithHp(10).AsPlayer().Build();
         Unit enemy = new UnitBuilder().WithHp(0).AsEnemy().Build();
 
-        var e = new BattleEngine(player, enemy);
+        var e = new BattleEngineBuilder()
+            .WithPlayerUnit(player)
+            .WithPlayerUnit(enemy)
+            .Build();
         e.EnemyDefeated.Should().BeTrue();
     }
 
     [Fact]
     public void IsTurnAi_IsTrue_WhenAiIsNowTakingItsTurn()
     {
-        var be = new BattleEngine(GetAiUnits());
+        var be = new BattleEngineBuilder()
+            .WithPlayerUnit(new UnitBuilder().AsPlayer().WithHp(1).Build())
+            .WithEnemyUnit(new UnitBuilder().AsEnemy().WithHp(1).WithAgl(10).Build()
+        ).Build();
 
         be.IsTurnAi.Should().BeTrue();
-    }
-
-    private static IEnumerable<Unit> GetAiUnits()
-    {
-        return new[]
-        {
-            new UnitBuilder().AsEnemy().WithHp(1).Build(),
-            new UnitBuilder().AsEnemy().WithHp(1).Build()
-        };
     }
 
     private static IEnumerable<Unit> GetAiUnits(int count)
@@ -179,13 +212,18 @@ public class BattleEngineTests
             .Range(0, count)
             .Select(_ => new UnitBuilder().AsEnemy().Build());
     }
-
-
+    
     [Fact]
     public void AiAction_TakesMove_WhenItsTurn()
     {
-        var be = new BattleEngine(GetAiUnits());
-
+        Unit playerUnit = new UnitBuilder().AsPlayer().WithHp(1).Build();
+        Unit enemyUnit = new UnitBuilder().AsEnemy().WithHp(1).Build();
+        
+        var be = new BattleEngineBuilder()
+            .WithPlayerUnit(playerUnit)
+            .WithEnemyUnit(enemyUnit)
+            .Build();
+        
         be.AiAction().Should().Be(BattleAction.Attack);
     }
 
@@ -198,7 +236,6 @@ public class BattleEngineTests
             new UnitBuilder().AsPlayer().WithHp(1).Build(),
             new UnitBuilder().AsPlayer().WithHp(1).Build(),
             new UnitBuilder().AsPlayer().WithHp(1).Build()
-
         };
 
         IEnumerable<Unit> enemyParty = new[]
@@ -214,18 +251,14 @@ public class BattleEngineTests
             highestAglEnemy
         }.OrderByDescending(u => u.Agl);
 
-        var be = new BattleEngine(playerParty, enemyParty);
+        var be = new BattleEngineBuilder()
+            .WithPlayerParty(playerParty)
+            .WithEnemyParty(enemyParty)
+            .Build();
 
         be.UnitsInBattle.Should().HaveCount(5);
         be.Queue.First().Should().Be(orderByAgl.First());
         be.Queue.Skip(1).First().Should().Be(orderByAgl.Skip(1).First());
-    }
-
-    private IEnumerable<Unit> GetPlayerParty(int count)
-    {
-        return Enumerable
-            .Range(0, count)
-            .Select(_ => new UnitBuilder().Build());
     }
 
     [Fact]
@@ -239,7 +272,10 @@ public class BattleEngineTests
         
         IEnumerable<Unit> enemyParty = GetAiUnits(1);
 
-        var e = new BattleEngine(playerParty, enemyParty);
+        var e = new BattleEngineBuilder()
+            .WithPlayerParty(playerParty)
+            .WithEnemyParty(enemyParty)
+            .Build();
         e.PlayerDefeated.Should().BeTrue();
     }
 
@@ -254,7 +290,10 @@ public class BattleEngineTests
         
         IEnumerable<Unit> enemyParty = GetAiUnits(1);
 
-        var e = new BattleEngine(playerParty, enemyParty);
+        var e = new BattleEngineBuilder()
+            .WithPlayerParty(playerParty)
+            .WithEnemyParty(enemyParty)
+            .Build();
         e.PlayerDefeated.Should().BeFalse();
     }
 
@@ -272,7 +311,12 @@ public class BattleEngineTests
             new UnitBuilder().AsEnemy().WithHp(1).WithStr(2).Build(),
         };
 
-        var e = new BattleEngine(playerParty, enemyParty, GetAlwaysHitTenCalculator());
+        var e = new BattleEngine(
+            playerParty, 
+            enemyParty, 
+            GetAlwaysHitTenCalculator(), 
+            null, 
+            new List<Item>());
 
         e.TurnAttack(enemyParty.First(), playerParty.First());
         e.NextTurn();
@@ -294,7 +338,10 @@ public class BattleEngineTests
             new UnitBuilder().AsEnemy().WithHp(0).Build(),
         };
         
-        var e = new BattleEngine(playerParty, enemyParty);
+        var e = new BattleEngineBuilder()
+            .WithPlayerParty(playerParty)
+            .WithEnemyParty(enemyParty)
+            .Build();
 
         e.Queue.Should().NotContain(playerParty.First());
         e.Source.Should().Be(playerParty.Skip(1).First());
@@ -314,9 +361,37 @@ public class BattleEngineTests
             new UnitBuilder().AsEnemy().WithHp(0).Build(),
         };
         
-        var e = new BattleEngine(playerParty, enemyParty);
+        var e = new BattleEngineBuilder()
+            .WithPlayerParty(playerParty)
+            .WithEnemyParty(enemyParty)
+            .Build();
 
         e.Queue.Should().NotContain(playerParty.First());
         e.Source.Should().Be(playerParty.Skip(1).First());
+    }
+
+    [Fact]
+    public void Steal_AfterSuccess_MovesItemToOppsiteInventory()
+    {
+        Unit thief = InitialUnit.Thief();
+        Unit warrior = new UnitBuilder()
+            .WithStealable(new Item?[4] 
+                { null, null, null, new UseableItem("Potion") })
+            .WithStealRates(new int[] 
+                { byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue })
+            .Build();
+
+        IStealCalculator stealCalculator = GetAlwaysStealCalculator();
+
+        var engine = new BattleEngineBuilder()
+            .WithPlayerUnit(thief)
+            .WithEnemyUnit(warrior)
+            .WithStealCalculator(stealCalculator)
+            .Build();
+        
+        engine.TurnSteal(warrior);
+        engine.NextTurn();
+
+        engine.PlayerInventory.Should().Contain(i => i.Name == "Potion");
     }
 }
