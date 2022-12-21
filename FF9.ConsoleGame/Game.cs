@@ -168,7 +168,7 @@ public class Game
         else
         {
             // This is how AI makes decision who to target.
-            IEnumerable<Unit> list = _btlEngine.UnitsInBattle.Where(u => u.IsPlayer && u.IsAlive);
+            IEnumerable<Unit> list = _btlEngine.PlayerUnits.Where(u => u.IsAlive);
             int rand = Random.Shared.Next(1, list.Count() + 1);
             target = list.Skip(rand - 1).First();
         }

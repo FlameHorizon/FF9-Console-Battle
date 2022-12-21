@@ -59,7 +59,6 @@ public class Unit
             ? throw new ArgumentOutOfRangeException(nameof(level), "Level has to be positive value")
             : level;
 
-
         IsPlayer = isPlayer;
         _acc = (byte)(InitialAccValueAtLv1 + (3 * (Lv - 1)));
         Spirit = spr;
@@ -67,8 +66,6 @@ public class Unit
         StealableItems = stealableItems;
 
         _physicalDamageCalculator = new PhysicalDamageCalculator(new RandomProvider());
-        
-        
     }
 
     public int StealableItemsCount => StealableItems.Count(i => i is not null);

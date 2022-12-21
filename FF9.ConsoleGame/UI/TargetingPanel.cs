@@ -43,8 +43,8 @@ public class TargetingPanel
     private void DrawEnemies()
     {
         var offset = 2;
-        IEnumerable<Unit> aliveEnemyUnits = _btlEngine.UnitsInBattle
-            .Where(u => u.IsPlayer == false && u.IsAlive);
+        IEnumerable<Unit> aliveEnemyUnits =
+            _btlEngine.EnemyUnits.Where(u => u.IsAlive);
 
         foreach (Unit unit in aliveEnemyUnits)
         {
@@ -59,7 +59,7 @@ public class TargetingPanel
     private void DrawPlayers()
     {
         int offset = 2;
-        foreach (Unit unit in _btlEngine.UnitsInBattle.Where(u => u.IsPlayer))
+        foreach (Unit unit in _btlEngine.PlayerUnits)
         {
             Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + offset);
             Console.Write("|             |       |");
@@ -94,8 +94,9 @@ public class TargetingPanel
         ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top);
         ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 1);
         int characterRows = Math.Max(
-            _btlEngine.UnitsInBattle.Count(u => u.IsPlayer),
-            _btlEngine.UnitsInBattle.Count(u => u.IsPlayer == false));
+            _btlEngine.PlayerUnits.Count(),
+            _btlEngine.EnemyUnits.Count()
+        );
 
         for (int i = 0; i < characterRows; i++)
         {

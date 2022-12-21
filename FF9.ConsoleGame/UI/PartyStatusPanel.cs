@@ -17,7 +17,7 @@ public class PartyStatusPanel
     public PartyStatusPanel(BattleEngine btlEngine, (int left, int top) panelPosition)
     {
         _btlEngine = btlEngine;
-        _playerParty = _btlEngine.UnitsInBattle.Where(u => u.IsPlayer).ToList();
+        _playerParty = _btlEngine.PlayerUnits.ToList();
         _panelPosition = panelPosition;
         _panelRightBottomPosition = (0, _panelPosition.top + 6);
         _turnIndicatorLeft = _panelPosition.left + 1;

@@ -9,7 +9,7 @@ public class UnitBuilder
     private List<Item>? _items;
     private Item?[]? _stealable;
     private int[]? _rates;
-    private int _hp;
+    private int _hp = 1;
     private bool _isPlayer;
     private int _agl;
     private int _str;

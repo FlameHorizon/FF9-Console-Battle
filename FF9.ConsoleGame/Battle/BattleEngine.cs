@@ -67,22 +67,12 @@ public class BattleEngine
     {
         get
         {
-            return UnitsInBattle
-                .Where(u => u.IsPlayer == false)
-                .All(u => u.IsAlive == false);
+            return EnemyUnits.All(u => u.IsAlive == false);
         }
     }
     
-    public bool PlayerDefeated
-    {
-        get
-        {
-            return UnitsInBattle
-                .Where(u => u.IsPlayer)
-                .All(u => u.IsAlive == false);
-        }
-    }
-    
+    public bool PlayerDefeated => PlayerUnits.All(u => u.IsAlive == false);
+
     public IEnumerable<Unit> UnitsInBattle
     {
         get => _unitsInBattle;
