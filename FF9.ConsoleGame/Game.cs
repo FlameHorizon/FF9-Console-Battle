@@ -174,8 +174,7 @@ public class Game
         }
 
         _btlEngine.TurnAttack(target);
-
-        _partyStatusPanel.UpdatePlayerHealthOnConsole();
+        _partyStatusPanel.UpdatePlayerHealth();
 
         string msg = _btlEngine.LastDamageValue == 0
             ? $"{_btlEngine.Source.Name} missed attack."

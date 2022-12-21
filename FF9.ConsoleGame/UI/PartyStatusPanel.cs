@@ -109,7 +109,7 @@ public class PartyStatusPanel
         Console.Write("*");
     }
 
-    public void UpdatePlayerHealthOnConsole()
+    public void UpdatePlayerHealth()
     {
         var pos = 1;
         foreach (Unit unit in _playerParty)
