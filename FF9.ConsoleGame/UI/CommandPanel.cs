@@ -30,22 +30,22 @@ public class CommandPanel
         // Start drawing menu three lines below first line.
         Console.SetCursorPosition(_panelPosition.left, _panelPosition.top);
         Console.Write("|---------|---------|");
-        
+
         Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 1);
         Console.Write("| {0}| {1}|         ", AttackLabel.PadRight(8), DefendLabel.PadRight(8));
-        
+
         Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 2);
         Console.Write("|---------|---------|         ");
-        
+
         Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 3);
         Console.Write("| {0}| {1}|         ", StealLabel.PadRight(8), EmptyLabel.PadRight(8));
-        
+
         Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 4);
         Console.Write("|---------|---------|         ");
-        
-        Console.SetCursorPosition(_panelPosition.left, _panelPosition.top +5);
+
+        Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 5);
         Console.Write("| {0}| {1}|         ", ItemLabel.PadRight(8), ChangeLabel.PadRight(8));
-        
+
         Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 6);
         Console.Write("|---------|---------|         ");
 
@@ -131,7 +131,7 @@ public class CommandPanel
     {
         ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top);
         ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 1);
-        ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 2);        ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 2);
+        ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 2);
         ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 3);
         ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 4);
         ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top + 5);
