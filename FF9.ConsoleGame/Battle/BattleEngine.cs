@@ -8,8 +8,8 @@ public class BattleEngine
     private readonly IPhysicalDamageCalculator _physicalDamageCalc;
     private readonly IStealCalculator _stealCalculator;
     private readonly List<Unit>_unitsInBattle;
+    private readonly List<Item> _playerInventory;
     private Unit? _target;
-    private List<Item> _playerInventory;
 
     public BattleEngine(
         IEnumerable<Unit> playerUnits,
@@ -46,8 +46,8 @@ public class BattleEngine
 
     public IEnumerable<Unit> Queue => _queue;
     
-    public IEnumerable<Unit> PlayerUnits { get; init; }
-    public IEnumerable<Unit> EnemyUnits { get; init; }
+    public IEnumerable<Unit> PlayerUnits { get; }
+    public IEnumerable<Unit> EnemyUnits { get; }
     public Item? LastStolenItem { get; private set; }
     public bool IsTurnAi => Source.IsPlayer == false;
     public IEnumerable<Item> PlayerInventory => _playerInventory;
@@ -61,23 +61,21 @@ public class BattleEngine
     /// <summary>
     /// Returns Unit which is a target of an action taken by Source.
     /// </summary>
-    public Unit Target { get; private set; }
+    public Unit? Target { get; private set; }
 
     public bool EnemyDefeated => EnemyUnits.All(u => u.IsAlive == false);
 
     public bool PlayerDefeated => PlayerUnits.All(u => u.IsAlive == false);
 
-    public IEnumerable<Unit> UnitsInBattle
-    {
-        get => _unitsInBattle;
-        private init => _unitsInBattle = value.ToList();
-    }
+    public IEnumerable<Unit> UnitsInBattle => _unitsInBattle;
 
     public void TurnAttack() => TurnAttack(Source, Target);
     public void TurnAttack(Unit target) => TurnAttack(Source, target);
 
-    public void TurnAttack(Unit source, Unit target)
+    public void TurnAttack(Unit source, Unit? target)
     {
+        if (target == null) throw new ArgumentNullException(nameof(target));
+        
         if (!ReferenceEquals(_target, target))
             _target = target;
 
@@ -114,13 +112,16 @@ public class BattleEngine
     }
 
     /// <summary>
-    /// This method allows unit to steal item from Target unit. If successfully, item is transferred to
+    /// This method allows unit to steal item from Target unit.
+    /// If successfully, item is transferred to
     /// the inventory of stealer. Otherwise, turn passes.
     /// </summary>
     public void TurnSteal() => TurnSteal(Target);
 
-    public void TurnSteal(Unit target)
+    public void TurnSteal(Unit? target)
     {
+        if (target == null) throw new ArgumentNullException(nameof(target));
+        
         Item? stolenItem = _stealCalculator.Steal(Source, target);
 
         // Means, nothing got stolen.

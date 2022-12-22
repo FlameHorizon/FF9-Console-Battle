@@ -29,7 +29,7 @@ public class PartyStatusPanel
         Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + 1);
         Console.Write("|Name     |   HP|  MP|");
 
-        int offset = 2;
+        var offset = 2;
         foreach (Unit unit in _playerParty)
         {
             Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + offset);
@@ -78,7 +78,7 @@ public class PartyStatusPanel
         {
             // First observed while using defend action.
             // Might be because before AI was taking its turn...
-            Debug.WriteLine($"coords.First().Y is 0. " +
+            Debug.WriteLine("coords.First().Y is 0. " +
                             $"Might be bug in {nameof(UpdatePlayerTurnIndicator)}");
         }
 

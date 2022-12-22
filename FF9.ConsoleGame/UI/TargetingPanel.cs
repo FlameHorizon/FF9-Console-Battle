@@ -58,7 +58,7 @@ public class TargetingPanel
 
     private void DrawPlayers()
     {
-        int offset = 2;
+        var offset = 2;
         foreach (Unit unit in _btlEngine.PlayerUnits)
         {
             Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + offset);
@@ -83,7 +83,7 @@ public class TargetingPanel
         SetCursorAtInitialPosition(_cursorPosition.left, _cursorPosition.top);
     }
 
-    private void SetCursorAtInitialPosition(int left, int top)
+    private static void SetCursorAtInitialPosition(int left, int top)
     {
         Console.SetCursorPosition(left, top);
         Console.Write(">");
@@ -98,7 +98,7 @@ public class TargetingPanel
             _btlEngine.EnemyUnits.Count()
         );
 
-        for (int i = 0; i < characterRows; i++)
+        for (var i = 0; i < characterRows; i++)
         {
             ConsoleExtensions.ClearRange(
                 (_panelPosition.left, _panelPositionRight), 
@@ -112,12 +112,12 @@ public class TargetingPanel
 
     public void MoveCursor(CursorMoveDirection direction)
     {
-        var directionOffsetMap = new Dictionary<CursorMoveDirection, (int left, int top)>()
+        var directionOffsetMap = new Dictionary<CursorMoveDirection, (int left, int top)>
         {
             { CursorMoveDirection.Down, (0, 1) },
             { CursorMoveDirection.Up, (0, -1) },
             { CursorMoveDirection.Left, (-14, 0) },
-            { CursorMoveDirection.Right, (14, 0) },
+            { CursorMoveDirection.Right, (14, 0) }
         };
 
         MoveCursor(directionOffsetMap[direction]);

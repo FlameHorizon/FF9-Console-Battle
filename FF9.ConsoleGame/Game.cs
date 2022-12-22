@@ -1,5 +1,4 @@
 ﻿using FF9.ConsoleGame.Battle;
-using FF9.ConsoleGame.Battle.Interfaces;
 using FF9.ConsoleGame.UI;
 
 namespace FF9.ConsoleGame;
@@ -43,11 +42,11 @@ public class Game
                 BattleAction action = _btlEngine.AiAction();
                 HandleAction(action);
 
-                if (_btlEngine.PlayerDefeated)
-                {
-                    WriteMessage("Player party has been defeated.");
-                    break;
-                }
+                if (_btlEngine.PlayerDefeated == false) 
+                    continue;
+                
+                WriteMessage("Player party has been defeated.");
+                break;
             }
 
             ConsoleKeyInfo keyPressed = Console.ReadKey(true);
@@ -107,15 +106,13 @@ public class Game
     private void HandleBack()
     {
         if (_commandPanel.IsVisible)
-        {
             return;
-        }
 
-        if (_targetingPanel.IsVisible)
-        {
-            _targetingPanel.Hide();
-            _commandPanel.Draw();
-        }
+        if (_targetingPanel.IsVisible == false) 
+            return;
+        
+        _targetingPanel.Hide();
+        _commandPanel.Draw();
     }
 
     private void HandleAction(BattleAction? action)
@@ -138,7 +135,7 @@ public class Game
             case null:
                 break;
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(action));
         }
     }
 
@@ -149,7 +146,7 @@ public class Game
         Item? stolenItem = _btlEngine.LastStolenItem;
 
         string msg = stolenItem is not null
-            ? $"{_btlEngine.Source.Name} stole {stolenItem.Name} from {_btlEngine.Target.Name}"
+            ? $"{_btlEngine.Source.Name} stole {stolenItem.Name} from {_btlEngine.Target?.Name}"
             : "Couldn't steal an item";
 
         WriteMessage(msg);
@@ -178,12 +175,12 @@ public class Game
         Unit target;
         if (_btlEngine.Source.IsPlayer)
         {
-            target = _btlEngine.Target;
+            target = _btlEngine.Target ?? throw new InvalidOperationException();
         }
         else
         {
             // This is how AI makes decision who to target.
-            IEnumerable<Unit> list = _btlEngine.PlayerUnits.Where(u => u.IsAlive);
+            IEnumerable<Unit> list = _btlEngine.PlayerUnits.Where(u => u.IsAlive).ToList();
             int rand = Random.Shared.Next(1, list.Count() + 1);
             target = list.Skip(rand - 1).First();
         }
@@ -223,7 +220,7 @@ public class Game
 
     private void HandleArrowKey(ConsoleKeyInfo keyPressed)
     {
-        var keyDirectionMap = new Dictionary<ConsoleKey, CursorMoveDirection>()
+        var keyDirectionMap = new Dictionary<ConsoleKey, CursorMoveDirection>
         {
             { ConsoleKey.DownArrow, CursorMoveDirection.Down },
             { ConsoleKey.UpArrow, CursorMoveDirection.Up },
