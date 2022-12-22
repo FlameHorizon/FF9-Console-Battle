@@ -95,7 +95,7 @@ public class BattleEngineTests
     {
         Unit thief = InitialUnit.Thief();
         Unit warrior = new UnitBuilder()
-            .WithStealable(new Item?[4] { null, null, null, new WeaponItem() })
+            .WithStealable(new Item?[] { null, null, null, new WeaponItem() })
             .WithStealRates(new int[] 
                 { byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue })
             .Build();
@@ -117,7 +117,7 @@ public class BattleEngineTests
     {
         Unit thief = InitialUnit.Thief();
         Unit warrior = new UnitBuilder()
-            .WithStealable(new Item?[4] { null, null, null, new WeaponItem() })
+            .WithStealable(new Item?[] { null, null, null, new WeaponItem() })
             .WithStealRates(new int[] { byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue })
             .Build();
 
@@ -375,7 +375,7 @@ public class BattleEngineTests
     {
         Unit thief = InitialUnit.Thief();
         Unit warrior = new UnitBuilder()
-            .WithStealable(new Item?[4] 
+            .WithStealable(new Item?[] 
                 { null, null, null, new UseableItem("Potion") })
             .WithStealRates(new int[] 
                 { byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue })

@@ -18,7 +18,7 @@ public class StealCalculatorTests
         
         Unit warrior = new UnitBuilder()
             .WithLv(1)
-            .WithStealable(new Item?[4] { null, null, null, eqItem })
+            .WithStealable(new Item?[] { null, null, null, eqItem })
             .WithStealRates(new int[] { byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue })
             .Build();
 

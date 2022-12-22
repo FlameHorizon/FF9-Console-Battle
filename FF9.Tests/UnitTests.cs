@@ -18,7 +18,7 @@ public class UnitTests
     public void Steal_Item_WhenStealableItemsAreAvailable()
     {
         Unit u = new UnitBuilder()
-            .WithStealable(new Item?[4] { new WeaponItem("Mage Masher"), null, null, null })
+            .WithStealable(new Item?[] { new WeaponItem("Mage Masher"), null, null, null })
             .Build();
 
         u.Steal(0)!.Name.Should().Be("Mage Masher");
@@ -51,7 +51,7 @@ public class UnitTests
     public void Steal_Null_WhenAllItemsWereAlreadyStolen()
     {
         Unit u = new UnitBuilder()
-            .WithStealable(new Item?[1] { new WeaponItem("Mage Masher") })
+            .WithStealable(new Item?[] { new WeaponItem("Mage Masher") })
             .Build();
 
         u.Steal(0);
