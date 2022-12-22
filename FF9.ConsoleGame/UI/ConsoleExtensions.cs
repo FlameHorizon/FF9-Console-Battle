@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using static FF9.ConsoleGame.UI.KernelHelper;
 
 namespace FF9.ConsoleGame.UI;
@@ -81,6 +82,7 @@ public static class ConsoleExtensions
     /// In .Net 5 > use Console.GetCursorPosition
     /// </summary>
     /// <returns>Cursor position</returns>
+    [SuppressMessage("ReSharper", "All")]
     public static COORD GetCursorPosition()
     {
         // Get a handle for the console
@@ -95,6 +97,7 @@ public static class ConsoleExtensions
     /// </summary>
     /// <param name="ptr"></param>
     /// <returns></returns>
+    [SuppressMessage("ReSharper", "All")]
     public static CONSOLE_SCREEN_BUFFER_INFO GetConsoleInfo()
     {
         // Get a handle for the console
@@ -114,6 +117,7 @@ public static class ConsoleExtensions
     /// </summary>
     /// <param name="text"></param>
     /// <returns>List of found coordinates</returns>
+    [SuppressMessage("ReSharper", "All")]
     public static List<COORD> IndexOfInConsole(string text)
     {
         return IndexOfInConsole(new[] { text });
@@ -124,6 +128,7 @@ public static class ConsoleExtensions
     /// </summary>
     /// <param name="text"></param>
     /// <returns>List of found coordinates</returns>
+    [SuppressMessage("ReSharper", "All")]
     public static List<COORD> IndexOfInConsole(string[] text)
     {
         var coords = new List<COORD>();
@@ -162,6 +167,7 @@ public static class ConsoleExtensions
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <returns>One character</returns>
+    [SuppressMessage("ReSharper", "All")]
     public static char GetChar(int x, int y)
     {
         // Get a handle for the console
@@ -178,6 +184,7 @@ public static class ConsoleExtensions
     /// <param name="y"></param>
     /// <param name="ptr"></param>
     /// <returns>One character</returns>
+    [SuppressMessage("ReSharper", "All")]
     public static char GetChar(int x, int y, IntPtr ptr)
     {
         // Convert to coord and call it
@@ -190,6 +197,7 @@ public static class ConsoleExtensions
     /// <param name="coordinate"></param>
     /// <param name="ptr"></param>
     /// <returns>One character</returns>
+    [SuppressMessage("ReSharper", "All")]
     public static char GetChar(COORD coordinate, IntPtr ptr)
     {
         // Convert the coordinates to a uint containing both
@@ -212,6 +220,7 @@ public static class ConsoleExtensions
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <returns>All text on the line until end</returns>
+    [SuppressMessage("ReSharper", "All")]
     public static string GetText(int x, int y)
     {
         // Get a handle for the console
@@ -228,6 +237,7 @@ public static class ConsoleExtensions
     /// <param name="y"></param>
     /// <param name="length"></param>
     /// <returns>The specified text on the line</returns>
+    [SuppressMessage("ReSharper", "All")]
     public static string GetText(int x, int y, int length)
     {
         // Get a handle for the console
@@ -244,6 +254,7 @@ public static class ConsoleExtensions
     /// <param name="y"></param>
     /// <param name="ptr"></param>
     /// <returns>All text on the line until end</returns>
+    [SuppressMessage("ReSharper", "All")]
     public static string GetText(int x, int y, IntPtr ptr)
     {
         // Get Console Info
@@ -261,6 +272,7 @@ public static class ConsoleExtensions
     /// <param name="length"></param>
     /// <param name="ptr"></param>
     /// <returns>The specified text on the line</returns>
+    [SuppressMessage("ReSharper", "All")]
     public static string GetText(int x, int y, int length, IntPtr ptr)
     {
         // Convert to coord and call it
@@ -274,6 +286,7 @@ public static class ConsoleExtensions
     /// <param name="length"></param>
     /// <param name="ptr"></param>
     /// <returns>The specified text on the line</returns>
+    [SuppressMessage("ReSharper", "All")]
     public static string GetText(COORD coordinate, int length, IntPtr ptr)
     {
         var text = "";
