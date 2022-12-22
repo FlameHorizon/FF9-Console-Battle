@@ -77,7 +77,6 @@ IEnumerable<Unit> CreatePlayerParty()
             .WithSpirit(23)
             .WithAgl(23)
             .Build()
-
     };
     return enumerable;
 }
@@ -88,6 +87,7 @@ IEnumerable<Unit> enemyParty = CreateEnemyParty();
 BattleEngine btlEngine = new BattleEngineBuilder()
     .WithPlayerParty(playerParty)
     .WithEnemyParty(enemyParty)
+    .WithPlayerInventory(new[] { new UseableItem("Potion", 1) })
     .Build();
 
 var game = new Game(btlEngine);

@@ -95,7 +95,7 @@ public class BattleEngineTests
     {
         Unit thief = InitialUnit.Thief();
         Unit warrior = new UnitBuilder()
-            .WithStealable(new Item?[] { null, null, null, new WeaponItem() })
+            .WithStealable(new Item?[] { null, null, null, new WeaponItem("Sword") })
             .WithStealRates(new int[] 
                 { byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue })
             .Build();
@@ -117,7 +117,7 @@ public class BattleEngineTests
     {
         Unit thief = InitialUnit.Thief();
         Unit warrior = new UnitBuilder()
-            .WithStealable(new Item?[] { null, null, null, new WeaponItem() })
+            .WithStealable(new Item?[] { null, null, null, new WeaponItem("Sword") })
             .WithStealRates(new int[] { byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue })
             .Build();
 
@@ -376,7 +376,7 @@ public class BattleEngineTests
         Unit thief = InitialUnit.Thief();
         Unit warrior = new UnitBuilder()
             .WithStealable(new Item?[] 
-                { null, null, null, new UseableItem("Potion") })
+                { null, null, null, new UseableItem("Potion", 1) })
             .WithStealRates(new int[] 
                 { byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue })
             .Build();
@@ -393,5 +393,51 @@ public class BattleEngineTests
         engine.NextTurn();
 
         engine.PlayerInventory.Should().Contain(i => i.Name == "Potion");
+    }
+    
+    [Fact]
+    public void TurnUseItem_Item_ShouldHaveAnEffectOnTarget()
+    {
+        Unit p = new UnitBuilder()
+            .WithHp(100)
+            .WithMaxHp(200)
+            .Build();
+        
+        Unit e = new UnitBuilder().Build();
+        
+        BattleEngine engine = new BattleEngineBuilder()
+            .WithPlayerUnit(p)
+            .WithEnemyUnit(e)
+            .WithPlayerInventory(new List<Item> { new UseableItem("Potion") })
+            .Build();
+        
+        engine.SetItem(new UseableItem("Potion"));
+        engine.TurnUseItem(p);
+
+        p.Hp.Should().Be(p.MaxHp);
+    }
+    
+    [Fact]
+    public void TurnUseItem_Item_ShouldRemoveItemFromInventory()
+    {
+        Unit p = new UnitBuilder()
+            .WithHp(100)
+            .WithMaxHp(200)
+            .Build();
+        
+        Unit e = new UnitBuilder().Build();
+        
+        BattleEngine engine = new BattleEngineBuilder()
+            .WithPlayerUnit(p)
+            .WithPlayerInventory(new List<Item> { new UseableItem("Potion", 1) })
+            .WithEnemyUnit(e)
+            .Build();
+        
+        engine.PlayerInventory.Should().ContainSingle();
+        
+        engine.SetItem(new UseableItem("Potion"));
+        engine.TurnUseItem(p);
+
+        engine.PlayerInventory.Single(i => i.Name == "Potion").Count.Should().Be(0);
     }
 }

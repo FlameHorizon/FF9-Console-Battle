@@ -29,7 +29,7 @@ public class Unit
 
     public bool IsAlive => Hp > 0;
     public int Lv { get; private set; } = 1;
-    private WeaponItem Weapon { get; set; } = new();
+    private WeaponItem Weapon { get; set; } = new("Sword");
 
     private static readonly List<EquipmentItem> _equipment = new();
     public readonly IEnumerable<EquipmentItem> Equipment = _equipment;
@@ -45,11 +45,13 @@ public class Unit
     private IPhysicalDamageCalculator _physicalDamageCalculator;
     private int _atk;
 
-    public Unit(string name, int hp, int mp, int str, int agl, int defence, int level, bool isPlayer, int spr,
+    public Unit(string name, int hp, int maxHp, int mp, int str, int agl, int defence, int level, bool isPlayer,
+        int spr,
         Item?[] stealableItems, int[]? rates)
     {
         Name = name;
         Hp = hp;
+        MaxHp = maxHp;
         Mp = mp;
         Str = str;
         Agl = agl;
@@ -69,7 +71,8 @@ public class Unit
     }
 
     public int StealableItemsCount => StealableItems.Count(i => i is not null);
-    
+    public int MaxHp { get; }
+
     public int CalculatePhysicalDamage(int damage, byte attackerHitRate)
     {
         return _physicalDamageCalculator.Calculate(damage, attackerHitRate, this);
@@ -122,14 +125,17 @@ public class Unit
         return item;
     }
 
-    public void PutIntoInventory(Item item)
-    {
-        Inventory.Add(item);
-    }
+    public void PutIntoInventory(Item item) => Inventory.Add(item);
 
-    public void RemoveDefenceStance()
+    public void RemoveDefenceStance() => InDefenceStance = false;
+
+    public void TakeHeal(int heal)
     {
-        InDefenceStance = false;
+        Hp += heal;
+        if (Hp > MaxHp)
+        {
+            Hp = MaxHp;
+        }
     }
 }
 

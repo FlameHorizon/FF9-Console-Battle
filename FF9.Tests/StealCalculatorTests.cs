@@ -10,7 +10,7 @@ public class StealCalculatorTests
     [Fact]
     public void Steal_Success_IfHitRateIsHigherThanEvade()
     {
-        EquipmentItem eqItem = new();
+        EquipmentItem eqItem = new("Armor");
         Unit thief = new UnitBuilder()
             .WithLv(1)
             .WithSpirit(100)

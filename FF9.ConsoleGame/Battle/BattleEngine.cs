@@ -68,6 +68,9 @@ public class BattleEngine
     public bool PlayerDefeated => PlayerUnits.All(u => u.IsAlive == false);
 
     public IEnumerable<Unit> UnitsInBattle => _unitsInBattle;
+    
+    public Item? ItemForUse { get; private set; }
+    public Item? LastUsedItem { get; private set; }
 
     public void TurnAttack() => TurnAttack(Source, Target);
     public void TurnAttack(Unit target) => TurnAttack(Source, target);
@@ -109,6 +112,8 @@ public class BattleEngine
 
         LastStolenItem = null;
         LastDamageValue = 0;
+        LastUsedItem = null;
+        ItemForUse = null;
     }
 
     /// <summary>
@@ -144,6 +149,33 @@ public class BattleEngine
 
     public void SetItem(Item? newItem)
     {
-        throw new NotImplementedException();
+        if (newItem is null)
+            return;
+
+        ItemForUse = newItem;
+    }
+
+    public void TurnUseItem(Unit target) => TurnUseItem(target, ItemForUse);
+    
+    public void TurnUseItem(Unit target, Item? item)
+    {
+        if (target == null) 
+            throw new ArgumentNullException(nameof(target));
+        
+        if (!ReferenceEquals(_target, target))
+            _target = target;
+
+        if (item is null)
+            throw new InvalidOperationException("No item was set for this action");
+        
+        int count = _playerInventory.Single(i => i.Name == item.Name).Count;
+
+        if (count <= 0)
+            throw new InvalidOperationException(
+                $"Can't use item {item.Name} because there is non in inventory.");
+        
+        _target.TakeHeal(100);
+        _playerInventory.Single(i => i.Name == item.Name).Count--;
+        LastUsedItem = item;
     }
 }

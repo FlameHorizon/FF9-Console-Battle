@@ -2,13 +2,8 @@
 
 public class WeaponItem : Item
 {
-    public WeaponItem()
-    { }
-
-    public WeaponItem(string name, int atk = 0)
-    
+    public WeaponItem(string name, int atk = 0) : base (name)
     {
-        Name = name;
         Atk = atk;
     }
 

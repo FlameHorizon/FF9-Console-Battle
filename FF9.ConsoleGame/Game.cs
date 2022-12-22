@@ -42,9 +42,9 @@ public class Game
                 BattleAction action = _btlEngine.AiAction();
                 HandleAction(action);
 
-                if (_btlEngine.PlayerDefeated == false) 
+                if (_btlEngine.PlayerDefeated == false)
                     continue;
-                
+
                 WriteMessage("Player party has been defeated.");
                 break;
             }
@@ -64,13 +64,19 @@ public class Game
                     _targetingPanel.Hide();
                     _commandPanel.Draw();
                 }
-                else if (_itemPanel.IsVisible && _itemPanel.Item != null)
+                else if (_itemPanel.IsVisible && _itemPanel.Item != null && _targetingPanel.Target != null)
                 {
                     _btlEngine.SetItem(_itemPanel.Item);
                     HandleAction(_commandPanel.CurrentPlayerAction);
                     _targetingPanel.Hide();
                     _commandPanel.Draw();
                 }
+                else if (_itemPanel.IsVisible && _itemPanel.Item != null)
+                {
+                    _itemPanel.Hide();
+                    _targetingPanel.Draw();
+                }
+
                 else if (_commandPanel.IsVisible)
                 {
                     if (_commandPanel.CurrentPlayerAction == BattleAction.Defend)
@@ -108,11 +114,17 @@ public class Game
         if (_commandPanel.IsVisible)
             return;
 
-        if (_targetingPanel.IsVisible == false) 
-            return;
-        
-        _targetingPanel.Hide();
-        _commandPanel.Draw();
+        if (_targetingPanel.IsVisible)
+        {
+            _targetingPanel.Hide();
+            _commandPanel.Draw();
+        }
+
+        if (_itemPanel.IsVisible)
+        {
+            _itemPanel.Hide();
+            _commandPanel.Draw();
+        }
     }
 
     private void HandleAction(BattleAction? action)
@@ -129,6 +141,7 @@ public class Game
                 ExecuteStealAction();
                 break;
             case BattleAction.UseItem:
+                ExecuteUseItemAction();
                 break;
             case BattleAction.Change:
                 break;
@@ -207,6 +220,32 @@ public class Game
         WriteMessage($"{_btlEngine.Source.Name}'s turn.");
     }
 
+    private void ExecuteUseItemAction()
+    {
+        Unit target;
+        if (_btlEngine.Source.IsPlayer)
+            target = _btlEngine.Target ?? throw new InvalidOperationException();
+        else
+            throw new InvalidOperationException("AI can't use items.");
+
+        if (_itemPanel.Item is null)
+            return;
+
+        _btlEngine.SetItem(_itemPanel.Item);
+        _btlEngine.TurnUseItem(target);
+        _partyStatusPanel.UpdatePlayerHealth();
+
+        string msg = $"{_btlEngine.Source.Name} used item " +
+                     $"{_btlEngine.LastUsedItem?.Name} on {_btlEngine.Target.Name}";
+
+        WriteMessage(msg);
+        Thread.Sleep(MillisecondsTimeout);
+
+        _btlEngine.NextTurn();
+        _partyStatusPanel.UpdatePlayerTurnIndicator();
+        WriteMessage($"{_btlEngine.Source.Name}'s turn.");
+    }
+
     private static bool ArrowKeyPressed(ConsoleKeyInfo keyPressed)
     {
         return new[]
@@ -236,6 +275,8 @@ public class Game
         else if (_targetingPanel.IsVisible)
             _targetingPanel.MoveCursor(keyDirectionMap[keyPressed.Key]);
 
+        else if (_itemPanel.IsVisible)
+            _itemPanel.MoveCursor(keyDirectionMap[keyPressed.Key]);
         else
             throw new InvalidOperationException("No panel can handle this button press.");
     }

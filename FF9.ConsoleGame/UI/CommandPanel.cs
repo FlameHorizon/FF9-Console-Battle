@@ -50,6 +50,7 @@ public class CommandPanel
         Console.Write("|---------|---------|         ");
 
         SetCursorAtInitialPositionInBattleMenu();
+        CurrentPlayerAction = BattleAction.Attack;
         IsVisible = true;
     }
 

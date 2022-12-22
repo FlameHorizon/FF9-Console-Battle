@@ -2,15 +2,10 @@
 
 public class EquipmentItem : Item
 {
-    public EquipmentItem()
+    public EquipmentItem(string name) : base(name)
     { }
 
-    public EquipmentItem(string name)
-    {
-        Name = name;
-    }
-
-    public EquipmentItem(EquipmentType type, int armor)
+    public EquipmentItem(EquipmentType type, int armor) : base("Sword")
     {
         Type = type;
         Armor = armor;
