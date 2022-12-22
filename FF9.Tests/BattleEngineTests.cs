@@ -172,7 +172,7 @@ public class BattleEngineTests
 
     private static IPhysicalDamageCalculator GetAlwaysHitTenCalculator()
     {
-        Mock<IRandomProvider> randomProvider = new Mock<IRandomProvider>();
+        var randomProvider = new Mock<IRandomProvider>();
         randomProvider
             .SetupSequence(p => p.Next(It.IsAny<int>(), It.IsAny<int>()))
             .Returns(1) // This roll controls if hit connects
