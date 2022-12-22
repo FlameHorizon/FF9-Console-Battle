@@ -268,7 +268,7 @@ public class BattleEngineTests
         IEnumerable<Unit> playerParty = new[]
         {
             new UnitBuilder().AsPlayer().WithHp(0).Build(),
-            new UnitBuilder().AsPlayer().WithHp(0).Build(),
+            new UnitBuilder().AsPlayer().WithHp(0).Build()
         };
         
         IEnumerable<Unit> enemyParty = GetAiUnits(1);
@@ -286,7 +286,7 @@ public class BattleEngineTests
         IEnumerable<Unit> playerParty = new[]
         {
             new UnitBuilder().AsPlayer().WithHp(1).Build(),
-            new UnitBuilder().AsPlayer().WithHp(1).Build(),
+            new UnitBuilder().AsPlayer().WithHp(1).Build()
         };
         
         IEnumerable<Unit> enemyParty = GetAiUnits(1);
@@ -304,12 +304,12 @@ public class BattleEngineTests
         IEnumerable<Unit> playerParty = new[]
         {
             new UnitBuilder().AsPlayer().WithHp(1).Build(),
-            new UnitBuilder().AsPlayer().WithHp(1).Build(),
+            new UnitBuilder().AsPlayer().WithHp(1).Build()
         };
         
         IEnumerable<Unit> enemyParty = new[]
         {
-            new UnitBuilder().AsEnemy().WithHp(1).WithStr(2).Build(),
+            new UnitBuilder().AsEnemy().WithHp(1).WithStr(2).Build()
         };
 
         BattleEngine e = new BattleEngineBuilder()
@@ -330,12 +330,12 @@ public class BattleEngineTests
         IEnumerable<Unit> playerParty = new[]
         {
             new UnitBuilder().AsPlayer().WithName("a").WithHp(0).Build(),
-            new UnitBuilder().AsPlayer().WithName("b").WithHp(1).Build(),
+            new UnitBuilder().AsPlayer().WithName("b").WithHp(1).Build()
         };
         
         IEnumerable<Unit> enemyParty = new[]
         {
-            new UnitBuilder().AsEnemy().WithHp(0).Build(),
+            new UnitBuilder().AsEnemy().WithHp(0).Build()
         };
         
         BattleEngine e = new BattleEngineBuilder()
@@ -353,12 +353,12 @@ public class BattleEngineTests
         IEnumerable<Unit> playerParty = new[]
         {
             new UnitBuilder().AsPlayer().WithName("a").WithHp(0).Build(),
-            new UnitBuilder().AsPlayer().WithName("b").WithHp(1).Build(),
+            new UnitBuilder().AsPlayer().WithName("b").WithHp(1).Build()
         };
         
         IEnumerable<Unit> enemyParty = new[]
         {
-            new UnitBuilder().AsEnemy().WithHp(0).Build(),
+            new UnitBuilder().AsEnemy().WithHp(0).Build()
         };
         
         BattleEngine e = new BattleEngineBuilder()

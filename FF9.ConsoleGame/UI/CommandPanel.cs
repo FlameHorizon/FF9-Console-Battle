@@ -71,7 +71,7 @@ public class CommandPanel
             { CursorMoveDirection.Down, (0, 2) },
             { CursorMoveDirection.Up, (0, -2) },
             { CursorMoveDirection.Left, (-10, 0) },
-            { CursorMoveDirection.Right, (10, 0) },
+            { CursorMoveDirection.Right, (10, 0) }
         };
 
         MoveBattleMenuCursor(directionOffsetMap[direction]);

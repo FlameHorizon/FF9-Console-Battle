@@ -11,7 +11,7 @@ var fruit = AnsiConsole.Prompt(
         .AddChoices(new[] {
             "Apple", "Apricot", "Avocado", 
             "Banana", "Blackcurrant", "Blueberry",
-            "Cherry", "Cloudberry", "Cocunut",
+            "Cherry", "Cloudberry", "Cocunut"
         }));
 
 // Echo the fruit back to the terminal

@@ -27,14 +27,14 @@ IEnumerable<Unit> CreateEnemyParty()
                 null,
                 new UseableItem("Potion"),
                 new EquipmentItem("Wrist"),
-                new WeaponItem("Mage Masher", atk: 15),
+                new WeaponItem("Mage Masher", atk: 15)
             })
             .WithStealRates(new[]
             {
                 GetStealRateFromPercent(1.0),
                 GetStealRateFromPercent(1.0d),
                 GetStealRateFromPercent(0.25d),
-                GetStealRateFromPercent(0.0625d),
+                GetStealRateFromPercent(0.0625d)
             })
             .Build()
     };
@@ -76,7 +76,7 @@ IEnumerable<Unit> CreatePlayerParty()
             .WithStr(21)
             .WithSpirit(23)
             .WithAgl(23)
-            .Build(),
+            .Build()
 
     };
     return enumerable;
