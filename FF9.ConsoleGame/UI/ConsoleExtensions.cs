@@ -41,7 +41,7 @@ public static class ConsoleExtensions
             var xPos = 0;
             while (true)
             {
-                var pos = line.IndexOf(t, xPos);
+                int pos = line.IndexOf(t, xPos);
                 if (pos == -1)
                     break;
                 
@@ -84,7 +84,7 @@ public static class ConsoleExtensions
     public static COORD GetCursorPosition()
     {
         // Get a handle for the console
-        var stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+        nint stdout = GetStdHandle(STD_OUTPUT_HANDLE);
 
         // In .net 5 there's Console.GetCursorPosition for this
         return GetConsoleInfo(stdout).dwCursorPosition;
@@ -98,7 +98,7 @@ public static class ConsoleExtensions
     public static CONSOLE_SCREEN_BUFFER_INFO GetConsoleInfo()
     {
         // Get a handle for the console
-        var stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+        nint stdout = GetStdHandle(STD_OUTPUT_HANDLE);
         return GetConsoleInfo(stdout);
     }
 
@@ -129,22 +129,22 @@ public static class ConsoleExtensions
         var coords = new List<COORD>();
 
         // Get a handle for the console
-        var stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+        nint stdout = GetStdHandle(STD_OUTPUT_HANDLE);
 
         // Get Console Info
-        var consoleInfo = GetConsoleInfo(stdout);
+        CONSOLE_SCREEN_BUFFER_INFO consoleInfo = GetConsoleInfo(stdout);
 
         for (int y = 0; y < consoleInfo.dwCursorPosition.Y; y += 1)
         {
-            var line = GetText(0, y, stdout);
+            string line = GetText(0, y, stdout);
 
             // Search through the line and put the results in coords
-            foreach (var t in text)
+            foreach (string t in text)
             {
                 var xPos = 0;
                 while (true)
                 {
-                    var pos = line.IndexOf(t, xPos);
+                    int pos = line.IndexOf(t, xPos);
                     if (pos == -1)
                         break;
                     coords.Add(new COORD { X = (short)pos, Y = (short)y });
@@ -165,7 +165,7 @@ public static class ConsoleExtensions
     public static char GetChar(int x, int y)
     {
         // Get a handle for the console
-        var stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+        nint stdout = GetStdHandle(STD_OUTPUT_HANDLE);
 
         // Call it with a pointer
         return GetChar(x, y, stdout);
@@ -215,7 +215,7 @@ public static class ConsoleExtensions
     public static string GetText(int x, int y)
     {
         // Get a handle for the console
-        var stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+        nint stdout = GetStdHandle(STD_OUTPUT_HANDLE);
 
         // Let's call it with a console pointer
         return GetText(x, y, stdout);
@@ -231,7 +231,7 @@ public static class ConsoleExtensions
     public static string GetText(int x, int y, int length)
     {
         // Get a handle for the console
-        var stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+        nint stdout = GetStdHandle(STD_OUTPUT_HANDLE);
 
         // Let's call it with a console pointer
         return GetText(x, y, length, stdout);
@@ -247,7 +247,7 @@ public static class ConsoleExtensions
     public static string GetText(int x, int y, IntPtr ptr)
     {
         // Get Console Info
-        var consoleInfo = GetConsoleInfo(ptr);
+        CONSOLE_SCREEN_BUFFER_INFO consoleInfo = GetConsoleInfo(ptr);
 
         // Let's call it with the remaining bit of the x screen buffer
         return GetText(x, y, consoleInfo.dwSize.X - y, ptr);
@@ -277,7 +277,7 @@ public static class ConsoleExtensions
     public static string GetText(COORD coordinate, int length, IntPtr ptr)
     {
         var text = "";
-        for (var x = coordinate.X; x < coordinate.X + length; x += 1)
+        for (short x = coordinate.X; x < coordinate.X + length; x += 1)
             text += GetChar(x, coordinate.Y);
         return text;
     }

@@ -3,7 +3,7 @@
 using Spectre.Console;
 
 // Ask for the user's favorite fruit
-var fruit = AnsiConsole.Prompt(
+string? fruit = AnsiConsole.Prompt(
     new SelectionPrompt<string>()
         .Title("What's your [green]favorite fruit[/]?")
         .PageSize(10)

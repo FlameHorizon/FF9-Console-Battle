@@ -85,7 +85,7 @@ IEnumerable<Unit> CreatePlayerParty()
 IEnumerable<Unit> playerParty = CreatePlayerParty();
 IEnumerable<Unit> enemyParty = CreateEnemyParty();
 
-var btlEngine = new BattleEngineBuilder()
+BattleEngine btlEngine = new BattleEngineBuilder()
     .WithPlayerParty(playerParty)
     .WithEnemyParty(enemyParty)
     .Build();
