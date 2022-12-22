@@ -66,7 +66,7 @@ public class CommandPanel
 
     public void MoveBattleMenuCursor(CursorMoveDirection direction)
     {
-        var directionOffsetMap = new Dictionary<CursorMoveDirection, (int left, int top)>()
+        var directionOffsetMap = new Dictionary<CursorMoveDirection, (int left, int top)>
         {
             { CursorMoveDirection.Down, (0, 2) },
             { CursorMoveDirection.Up, (0, -2) },
@@ -105,7 +105,7 @@ public class CommandPanel
 
     public void UpdateCurrentPlayerAction()
     {
-        var battleMenuPlayerAction = new Dictionary<string, BattleAction>()
+        var battleMenuPlayerAction = new Dictionary<string, BattleAction>
         {
             { AttackLabel, BattleAction.Attack },
             { StealLabel, BattleAction.Steal },
