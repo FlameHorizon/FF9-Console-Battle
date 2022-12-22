@@ -19,7 +19,7 @@ public class Unit
     // public int Lck { get; private set; }
 
     // Derived stats
-    public int Damage => (Str / 2) + Weapon.Atk;
+    public int Damage => Str / 2 + Weapon.Atk;
     public int Defence { get; private set; }
 
     // Hidden stats
@@ -60,7 +60,7 @@ public class Unit
             : level;
 
         IsPlayer = isPlayer;
-        _acc = (byte)(InitialAccValueAtLv1 + (3 * (Lv - 1)));
+        _acc = (byte)(InitialAccValueAtLv1 + 3 * (Lv - 1));
         Spirit = spr;
         if (rates != null) StealableItemsRates = rates;
         StealableItems = stealableItems;

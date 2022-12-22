@@ -8,7 +8,7 @@ IEnumerable<Unit> CreateEnemyParty()
 {
     int GetStealRateFromPercent(double value)
     {
-        var result = (int)((byte.MaxValue) * value);
+        var result = (int)(byte.MaxValue * value);
         return result;
     }
 
