@@ -1,4 +1,6 @@
-﻿using FF9.ConsoleGame.Battle.Interfaces;
+﻿using System.Reflection;
+using FF9.ConsoleGame.Battle.Interfaces;
+using FF9.ConsoleGame.Items;
 
 namespace FF9.ConsoleGame.Battle;
 
@@ -173,9 +175,76 @@ public class BattleEngine
         if (count <= 0)
             throw new InvalidOperationException(
                 $"Can't use item {item.Name} because there is non in inventory.");
+
+        UseItem(item.Name, Source, target);
         
-        _target.TakeHeal(100);
+
+        
         _playerInventory.Single(i => i.Name == item.Name).Count--;
         LastUsedItem = item;
+    }
+    
+    public void UseItem(ItemName name) => UseItem(name, Source, Target);
+    
+    private static void UseItem(ItemName name, Unit source, Unit target)
+    {
+        IUseable itemScript = FindItemScript(name);
+
+        // Create battle context and use method for the item
+        var ctx = new BattleContext(source, target, InCombat: true);
+        itemScript.Use(ctx);
+    }
+    
+    private static IUseable FindItemScript(ItemName name)
+    {
+        // Get class by name.
+        Type? type = Assembly
+            .GetExecutingAssembly()
+            .GetTypes()
+            .SingleOrDefault(t => t.IsClass
+                                  && t.GetInterfaces().Any(i => i.Name == nameof(IUseable))
+                                  && t.Namespace == "FF9.ConsoleGame.Items"
+                                  && t.Name == name.ToString());
+
+        if (type is null)
+        {
+            var msg = $"Script for item {name.ToString()} can't be found.";
+            throw new InvalidOperationException(msg);
+        }
+
+        // Initialize it via constructor.
+        ConstructorInfo? ctor = type.GetConstructor(Type.EmptyTypes);
+
+        if (ctor is null)
+        {
+            string msg = $"Script for item {name.ToString()} " +
+                         "does not have parameterless constructor.";
+            throw new InvalidOperationException(msg);
+        }
+
+        if (ctor.Invoke(Array.Empty<object>()) is not IUseable itemScript)
+        {
+            var msg = $"Object for an item wasn't created. Type {type.Name}.";
+            throw new InvalidOperationException(msg);
+        }
+
+        return itemScript;
+    }
+    
+    public void GameOver()
+    {
+        int cnt = PlayerInventory.Single(i => i.Name == ItemName.PhoenixPinion).Count;
+        var phoenixAppearChance = (decimal)(cnt / 256.0d);
+
+        decimal roll = Random.Shared.NextDecimalSample();
+
+        if (phoenixAppearChance <= roll)
+        {
+            // Show phoenix and revive party.
+        }
+        else
+        {
+            // Game over, really.
+        }
     }
 }

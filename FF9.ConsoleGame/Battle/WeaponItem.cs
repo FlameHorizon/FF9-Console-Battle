@@ -1,8 +1,10 @@
-﻿namespace FF9.ConsoleGame.Battle;
+﻿using FF9.ConsoleGame.Items;
+
+namespace FF9.ConsoleGame.Battle;
 
 public class WeaponItem : Item
 {
-    public WeaponItem(string name, int atk = 0) : base (name)
+    public WeaponItem(ItemName name, int atk = 0) : base (name)
     {
         Atk = atk;
     }

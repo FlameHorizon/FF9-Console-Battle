@@ -3,6 +3,8 @@
 using FF9.ConsoleGame;
 using FF9.ConsoleGame.Battle;
 using FF9.ConsoleGame.Battle.Interfaces;
+using FF9.ConsoleGame.Items;
+using BattleEngine = FF9.ConsoleGame.Battle.BattleEngine;
 
 IEnumerable<Unit> CreateEnemyParty()
 {
@@ -25,9 +27,9 @@ IEnumerable<Unit> CreateEnemyParty()
             .WithStealable(new Item?[]
             {
                 null,
-                new UseableItem("Potion"),
-                new EquipmentItem("Wrist"),
-                new WeaponItem("Mage Masher", atk: 15)
+                new UseableItem(ItemName.Potion, 1),
+                new EquipmentItem(ItemName.Wrist),
+                new WeaponItem(ItemName.MageMasher, atk: 15)
             })
             .WithStealRates(new[]
             {
@@ -87,7 +89,7 @@ IEnumerable<Unit> enemyParty = CreateEnemyParty();
 BattleEngine btlEngine = new BattleEngineBuilder()
     .WithPlayerParty(playerParty)
     .WithEnemyParty(enemyParty)
-    .WithPlayerInventory(new[] { new UseableItem("Potion", 1) })
+    .WithPlayerInventory(new[] { new UseableItem(ItemName.Potion, 1) })
     .Build();
 
 var game = new Game(btlEngine);

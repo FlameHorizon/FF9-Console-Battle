@@ -1,5 +1,7 @@
 ﻿using FF9.ConsoleGame.Battle;
+using FF9.ConsoleGame.Items;
 using FF9.ConsoleGame.UI;
+using BattleEngine = FF9.ConsoleGame.Battle.BattleEngine;
 
 namespace FF9.ConsoleGame;
 

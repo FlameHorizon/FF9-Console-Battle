@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using FF9.ConsoleGame.Battle.Interfaces;
+using FF9.ConsoleGame.Items;
 
 namespace FF9.ConsoleGame.Battle;
 
@@ -29,7 +30,7 @@ public class Unit
 
     public bool IsAlive => Hp > 0;
     public int Lv { get; private set; } = 1;
-    private WeaponItem Weapon { get; set; } = new("Sword");
+    private WeaponItem Weapon { get; set; } = new(ItemName.Sword);
 
     private static readonly List<EquipmentItem> _equipment = new();
     public readonly IEnumerable<EquipmentItem> Equipment = _equipment;
@@ -41,9 +42,11 @@ public class Unit
     public Item?[] StealableItems { get; private set; }
     public List<Item> Inventory { get; } = new();
     public bool InDefenceStance { get; private set; }
+    public List<SupportAbility> SupportAbilities { get; set; } = new();
 
     private IPhysicalDamageCalculator _physicalDamageCalculator;
     private int _atk;
+    private List<UnitType> _type = new();
 
     public Unit(string name, int hp, int maxHp, int mp, int str, int agl, int defence, int level, bool isPlayer,
         int spr,
@@ -72,6 +75,8 @@ public class Unit
 
     public int StealableItemsCount => StealableItems.Count(i => i is not null);
     public int MaxHp { get; }
+    public bool IsDead => IsAlive == false;
+    public bool IsEnemy => IsPlayer == false;
 
     public int CalculatePhysicalDamage(int damage, byte attackerHitRate)
     {
@@ -137,10 +142,66 @@ public class Unit
             Hp = MaxHp;
         }
     }
+
+    public bool HasSupportAbility(SupportAbility sa) => 
+        SupportAbilities.Contains(sa);
+    
+    public void Revive() => Hp = (int)(MaxHp * 0.1);
+    
+    public bool IsType(UnitType type) => _type.Any(t => t == type);
+    
+    public void InstantDeath() => Hp = 0;
+
+    public void HealFull()
+    {
+        Hp = MaxHp;
+        Console.WriteLine($"Player {1} healed for {MaxHp}");
+    }
+
+    public void ManaFull()
+    {
+        Mp = MaxMp;
+        Console.WriteLine($"Player {1} Mp renewed for {MaxMp}");
+    }
+
+    public int MaxMp { get; }
+    private HashSet<Status> _statuses = new();
+
+    public bool HasStatus(Status status) => _statuses.Contains(status);
+
+    public bool RemoveStatus(Status status) => _statuses.Remove(status);
+
+    public void AddStatus(Status status) => _statuses.Add(status);
+
+    public void TryRemoveStatus(Status status, out bool result)
+    {
+        result = RemoveStatus(status);
+    }
+
+    public bool HasAnyStatus(IEnumerable<Status> statuses)
+    {
+        return _statuses.Any(statuses.Contains);
+    }
+
+    public void RestoreMp(int amount)
+    {
+        Mp += amount;
+        if (Mp > MaxMp) 
+            Mp = MaxMp;
+
+        Console.WriteLine($"{amount} mana restored.");
+    }
 }
 
 public enum EquipmentType
 {
     Weapon,
     Armor
+}
+
+public enum UnitType
+{
+    Human,
+    Undead,
+    Stone
 }

@@ -1,4 +1,5 @@
 ﻿using FF9.ConsoleGame.Battle;
+using FF9.ConsoleGame.Items;
 
 namespace FF9.ConsoleGame;
 

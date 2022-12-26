@@ -1,5 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using FF9.ConsoleGame.Battle;
+﻿using FF9.ConsoleGame.Items;
+using BattleEngine = FF9.ConsoleGame.Battle.BattleEngine;
 
 namespace FF9.ConsoleGame.UI;
 
@@ -9,7 +9,7 @@ public class ItemPanel
     private readonly (int left, int top) _panelPosition;
     private readonly int _panelPositionRight;
     private readonly (int left, int top) _initialCursorPosition;
-    
+
     private (int left, int top) _cursorPosition;
 
     public ItemPanel(BattleEngine battleEngine, (int left, int top) panelPosition)
@@ -23,7 +23,7 @@ public class ItemPanel
 
     public bool IsVisible { get; private set; }
     public Item? Item { get; private set; }
-    
+
     public void Draw()
     {
         Console.SetCursorPosition(_panelPosition.left, _panelPosition.top);
@@ -46,10 +46,10 @@ public class ItemPanel
         {
             if (item.Count <= 0)
                 continue;
-            
+
             Console.SetCursorPosition(_panelPosition.left, _panelPosition.top + offset);
-            Console.Write("| {0}  {1}|         ", item.Name.PadRight(12), item.Count.ToString().PadLeft(4));    
-            
+            Console.Write("| {0}  {1}|         ", item.Name.ToString().PadRight(12), item.Count.ToString().PadLeft(4));
+
             offset++;
         }
     }
@@ -69,7 +69,7 @@ public class ItemPanel
     {
         if (direction is CursorMoveDirection.Left or CursorMoveDirection.Right)
             return;
-        
+
         var directionOffsetMap = new Dictionary<CursorMoveDirection, (int left, int top)>
         {
             { CursorMoveDirection.Down, (0, 1) },
@@ -92,14 +92,14 @@ public class ItemPanel
         Console.SetCursorPosition(_cursorPosition.left, _cursorPosition.top);
         Console.Write(" ");
 
-        _cursorPosition =  (_cursorPosition.left + offset.left, 
+        _cursorPosition = (_cursorPosition.left + offset.left,
             _cursorPosition.top + offset.top);
 
         // Write new cursor location.
         Console.SetCursorPosition(_cursorPosition.left, _cursorPosition.top);
         Console.Write(">");
     }
-    
+
     private bool IsWithinBoundaries((int left, int top) offset)
     {
         return _cursorPosition.top + offset.top >= _panelPosition.top + 2
@@ -111,17 +111,17 @@ public class ItemPanel
     private void UpdateItem()
     {
         string line = ConsoleExtensions.GetText(0, _cursorPosition.top);
-        
-        string itemName = line.Substring(1,12)
+
+        string itemName = line.Substring(1, 12)
             .Replace(">", string.Empty)
             .Trim();
 
         Item = string.IsNullOrEmpty(itemName)
             ? null
             : _battleEngine.PlayerInventory
-                .FirstOrDefault(i => i.Name == itemName);
+                .FirstOrDefault(i => i.Name.ToString() == itemName);
     }
-    
+
     public void Hide()
     {
         ConsoleExtensions.ClearRange((_panelPosition.left, _panelPositionRight), _panelPosition.top);
@@ -134,7 +134,7 @@ public class ItemPanel
         for (var i = 0; i < characterRows; i++)
         {
             ConsoleExtensions.ClearRange(
-                (_panelPosition.left, _panelPositionRight), 
+                (_panelPosition.left, _panelPositionRight),
                 _panelPosition.top + 2 + i);
         }
 

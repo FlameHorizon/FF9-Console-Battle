@@ -1,11 +1,13 @@
-﻿namespace FF9.ConsoleGame.Battle;
+﻿using FF9.ConsoleGame.Items;
+
+namespace FF9.ConsoleGame.Battle;
 
 public class EquipmentItem : Item
 {
-    public EquipmentItem(string name) : base(name)
+    public EquipmentItem(ItemName name) : base(name)
     { }
 
-    public EquipmentItem(EquipmentType type, int armor) : base("Sword")
+    public EquipmentItem(EquipmentType type, int armor) : base(ItemName.Sword)
     {
         Type = type;
         Armor = armor;

@@ -1,5 +1,6 @@
 ﻿using FF9.ConsoleGame;
 using FF9.ConsoleGame.Battle;
+using FF9.ConsoleGame.Items;
 using FluentAssertions;
 using Moq;
 
@@ -10,7 +11,7 @@ public class StealCalculatorTests
     [Fact]
     public void Steal_Success_IfHitRateIsHigherThanEvade()
     {
-        EquipmentItem eqItem = new("Armor");
+        EquipmentItem eqItem = new(ItemName.Potion);
         Unit thief = new UnitBuilder()
             .WithLv(1)
             .WithSpirit(100)
