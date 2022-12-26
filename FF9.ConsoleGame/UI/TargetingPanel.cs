@@ -162,6 +162,6 @@ public class TargetingPanel
         Target = string.IsNullOrEmpty(targetName)
             ? null
             : _btlEngine.UnitsInBattle.FirstOrDefault(
-                u => u.Name == targetName && u.IsAlive);
+                u => u.Name == targetName);
     }
 }

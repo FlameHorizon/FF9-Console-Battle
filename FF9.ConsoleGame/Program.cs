@@ -2,7 +2,6 @@
 
 using FF9.ConsoleGame;
 using FF9.ConsoleGame.Battle;
-using FF9.ConsoleGame.Battle.Interfaces;
 using FF9.ConsoleGame.Items;
 using BattleEngine = FF9.ConsoleGame.Battle.BattleEngine;
 
@@ -62,7 +61,8 @@ IEnumerable<Unit> CreatePlayerParty()
             .AsPlayer()
             .WithName("Cinna")
             .WithLv(1)
-            .WithHp(75)
+            .WithHp(0)
+            .WithMaxHp(100)
             .WithMp(32)
             .WithStr(21)
             .WithSpirit(23)
@@ -89,7 +89,7 @@ IEnumerable<Unit> enemyParty = CreateEnemyParty();
 BattleEngine btlEngine = new BattleEngineBuilder()
     .WithPlayerParty(playerParty)
     .WithEnemyParty(enemyParty)
-    .WithPlayerInventory(new[] { new UseableItem(ItemName.Potion, 1) })
+    .WithPlayerInventory(new[] { new UseableItem(ItemName.Potion, 8), new UseableItem(ItemName.PhoenixDown, 2)})
     .Build();
 
 var game = new Game(btlEngine);

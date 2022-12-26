@@ -6,6 +6,8 @@ namespace FF9.ConsoleGame.Battle;
 
 public class BattleEngine
 {
+    // Engine should be able to recalculate queue once units are revived.
+
     private Queue<Unit> _queue = new();
     private readonly IPhysicalDamageCalculator _physicalDamageCalc;
     private readonly IStealCalculator _stealCalculator;
