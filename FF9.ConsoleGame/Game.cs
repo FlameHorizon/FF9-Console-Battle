@@ -76,7 +76,7 @@ public class Game
                 else if (_itemPanel.IsVisible && _itemPanel.Item != null)
                 {
                     _itemPanel.Hide();
-                    _targetingPanel.Draw();
+                    _targetingPanel.Draw(focusOnPlayer: true);
                 }
 
                 else if (_commandPanel.IsVisible)
@@ -95,7 +95,7 @@ public class Game
                     else
                     {
                         _commandPanel.Hide();
-                        _targetingPanel.Draw();
+                        _targetingPanel.Draw(focusOnPlayer: false);
                     }
                 }
             }

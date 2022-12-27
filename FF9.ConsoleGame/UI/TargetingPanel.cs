@@ -1,4 +1,5 @@
 ﻿using FF9.ConsoleGame.Battle;
+using System.Diagnostics;
 
 namespace FF9.ConsoleGame.UI;
 
@@ -9,7 +10,8 @@ public class TargetingPanel
     private readonly BattleEngine _btlEngine;
     private readonly ConsoleColor _defaultConsoleColor;
 
-    private readonly (int left, int top) _initialCursorPosition;
+    private readonly (int left, int top) _firstEnemyUnitPosition;
+    private readonly (int left, int top) _firstPlayerUnitPosition;
     private (int left, int top) _cursorPosition;
 
     public TargetingPanel(BattleEngine btlEngine, (int left, int top) panelPosition)
@@ -17,15 +19,15 @@ public class TargetingPanel
         _btlEngine = btlEngine;
         _panelPosition = panelPosition;
         _panelPositionRight = _panelPosition.left + 23;
-        _cursorPosition = (_panelPosition.left + 1, _panelPosition.top + 2);
-        _initialCursorPosition = _cursorPosition;
+        _firstEnemyUnitPosition = (_panelPosition.left + 1, _panelPosition.top + 2);
+        _firstPlayerUnitPosition = (_panelPosition.left + 15, _panelPosition.top + 2);
         _defaultConsoleColor = Console.ForegroundColor;
     }
 
     public bool IsVisible { get; private set; }
     public Unit? Target { get; private set; }
 
-    public void Draw()
+    public void Draw(bool focusOnPlayer)
     {
         Console.SetCursorPosition(_panelPosition.left, _panelPosition.top);
         Console.Write("|---------------------|");
@@ -35,7 +37,12 @@ public class TargetingPanel
         DrawPlayers();
         DrawEnemies();
 
-        SetCursorAtInitialPosition();
+        if (focusOnPlayer)
+            SetCursorPosition(_firstPlayerUnitPosition.left, _firstPlayerUnitPosition.top);
+
+        else
+            SetCursorPosition(_firstEnemyUnitPosition.left, _firstEnemyUnitPosition.top);
+
         UpdateTarget();
         IsVisible = true;
     }
@@ -48,13 +55,14 @@ public class TargetingPanel
 
         foreach (Unit unit in aliveEnemyUnits)
         {
-            Console.SetCursorPosition(_panelPosition.left + 2, 
+            Console.SetCursorPosition(_panelPosition.left + 2,
                 _panelPosition.top + offset);
-            
+
             Console.Write("{0}", unit.Name.PadRight(11));
             offset++;
         }
     }
+
 
     private void DrawPlayers()
     {
@@ -68,9 +76,9 @@ public class TargetingPanel
                 ? ConsoleColor.DarkGray
                 : _defaultConsoleColor;
 
-            Console.SetCursorPosition(_panelPosition.left + 16, 
+            Console.SetCursorPosition(_panelPosition.left + 16,
                 _panelPosition.top + offset);
-            
+
             Console.Write(unit.Name.PadRight(6));
             Console.ForegroundColor = _defaultConsoleColor;
 
@@ -78,13 +86,9 @@ public class TargetingPanel
         }
     }
 
-    private void SetCursorAtInitialPosition()
+    private void SetCursorPosition(int left, int top)
     {
-        SetCursorAtInitialPosition(_cursorPosition.left, _cursorPosition.top);
-    }
-
-    private static void SetCursorAtInitialPosition(int left, int top)
-    {
+        _cursorPosition = (left, top);
         Console.SetCursorPosition(left, top);
         Console.Write(">");
     }
@@ -101,11 +105,11 @@ public class TargetingPanel
         for (var i = 0; i < characterRows; i++)
         {
             ConsoleExtensions.ClearRange(
-                (_panelPosition.left, _panelPositionRight), 
+                (_panelPosition.left, _panelPositionRight),
                 _panelPosition.top + 2 + i);
         }
 
-        _cursorPosition = _initialCursorPosition;
+        _cursorPosition = _firstEnemyUnitPosition;
         IsVisible = false;
         Target = null;
     }
@@ -134,12 +138,9 @@ public class TargetingPanel
         Console.SetCursorPosition(_cursorPosition.left, _cursorPosition.top);
         Console.Write(" ");
 
-        _cursorPosition =  (_cursorPosition.left + offset.left, 
+        SetCursorPosition(
+            _cursorPosition.left + offset.left,
             _cursorPosition.top + offset.top);
-
-        // Write new cursor location.
-        Console.SetCursorPosition(_cursorPosition.left, _cursorPosition.top);
-        Console.Write(">");
     }
 
     private bool IsWithinBoundaries((int left, int top) offset)
