@@ -61,6 +61,13 @@ public class Game
             {
                 if (_targetingPanel.IsVisible && _targetingPanel.Target != null)
                 {
+                    if (_targetingPanel.Target.IsPlayer && _targetingPanel.Target.IsDead
+                        && (_commandPanel.CurrentPlayerAction == BattleAction.Attack
+                        || _commandPanel.CurrentPlayerAction == BattleAction.Steal))
+                    {
+                        continue;
+                    }
+
                     _btlEngine.SetTarget(_targetingPanel.Target);
                     HandleAction(_commandPanel.CurrentPlayerAction);
                     _targetingPanel.Hide();
