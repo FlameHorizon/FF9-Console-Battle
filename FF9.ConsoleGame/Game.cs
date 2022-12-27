@@ -227,6 +227,7 @@ public class Game
         Unit target;
         if (_btlEngine.Source.IsPlayer)
             target = _btlEngine.Target ?? throw new InvalidOperationException();
+
         else
             throw new InvalidOperationException("AI can't use items.");
 
@@ -235,6 +236,7 @@ public class Game
 
         _btlEngine.SetItem(_itemPanel.Item);
         _btlEngine.TurnUseItem(target);
+
         _partyStatusPanel.UpdatePlayerHealth();
 
         string msg = $"{_btlEngine.Source.Name} used item " +
@@ -279,6 +281,7 @@ public class Game
 
         else if (_itemPanel.IsVisible)
             _itemPanel.MoveCursor(keyDirectionMap[keyPressed.Key]);
+
         else
             throw new InvalidOperationException("No panel can handle this button press.");
     }

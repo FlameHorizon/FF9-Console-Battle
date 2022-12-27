@@ -442,4 +442,55 @@ public class BattleEngineTests
 
         engine.PlayerInventory.Single(i => i.Name == ItemName.Potion).Count.Should().Be(0);
     }
+
+    [Fact]
+    public void TurnUseItem_PhoenixDown_ShouldPutUnitBackIntoTheQueue()
+    {
+        Unit deadUnit = new UnitBuilder()
+            .WithHp(0)
+            .WithMaxHp(100)
+            .Build();
+
+        Unit enemy = new UnitBuilder().Build();
+
+        var pd = new UseableItem(ItemName.PhoenixDown, 1);
+
+        BattleEngine e = new BattleEngineBuilder()
+            .WithPlayerUnit(deadUnit)
+            .WithEnemyUnit(enemy)
+            .WithPlayerInventoryItem(pd)
+            .Build();
+
+        e.Queue.Should().NotContain(deadUnit);
+
+        // Revive unit here by using Phoenix Down
+        e.SetItem(pd);
+        e.TurnUseItem(deadUnit);
+
+        deadUnit.Hp.Should().BeGreaterThan(0);
+        e.Queue.Should().Contain(deadUnit);
+    }
+
+    [Fact]
+    public void TurnUseItem_PhoenixDown_ShouldNotChangeQueueWhenUsedOnLiving()
+    {
+        Unit aliveUnit = new UnitBuilder().Build();
+        Unit enemy = new UnitBuilder().Build();
+
+        var pd = new UseableItem(ItemName.PhoenixDown, 1);
+
+        BattleEngine e = new BattleEngineBuilder()
+            .WithPlayerUnit(aliveUnit)
+            .WithEnemyUnit(enemy)
+            .WithPlayerInventoryItem(pd)
+            .Build();
+
+        IEnumerable<Unit> before = e.Queue.ToList();
+
+        e.SetItem(pd);
+        e.TurnUseItem(aliveUnit);
+
+        IEnumerable<Unit> after = e.Queue.ToList();
+        before.Should().ContainInConsecutiveOrder(after);
+    }
 }

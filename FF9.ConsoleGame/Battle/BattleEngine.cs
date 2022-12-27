@@ -1,17 +1,15 @@
-﻿using System.Reflection;
-using FF9.ConsoleGame.Battle.Interfaces;
+﻿using FF9.ConsoleGame.Battle.Interfaces;
 using FF9.ConsoleGame.Items;
+using System.Reflection;
 
 namespace FF9.ConsoleGame.Battle;
 
 public class BattleEngine
 {
-    // Engine should be able to recalculate queue once units are revived.
-
     private Queue<Unit> _queue = new();
     private readonly IPhysicalDamageCalculator _physicalDamageCalc;
     private readonly IStealCalculator _stealCalculator;
-    private readonly List<Unit>_unitsInBattle;
+    private readonly List<Unit> _unitsInBattle;
     private readonly List<Item> _playerInventory;
     private Unit? _target;
 
@@ -49,7 +47,7 @@ public class BattleEngine
     }
 
     public IEnumerable<Unit> Queue => _queue;
-    
+
     public IEnumerable<Unit> PlayerUnits { get; }
     public IEnumerable<Unit> EnemyUnits { get; }
     public Item? LastStolenItem { get; private set; }
@@ -72,7 +70,7 @@ public class BattleEngine
     public bool PlayerDefeated => PlayerUnits.All(u => u.IsAlive == false);
 
     public IEnumerable<Unit> UnitsInBattle => _unitsInBattle;
-    
+
     public Item? ItemForUse { get; private set; }
     public Item? LastUsedItem { get; private set; }
 
@@ -82,13 +80,13 @@ public class BattleEngine
     public void TurnAttack(Unit source, Unit? target)
     {
         if (target == null) throw new ArgumentNullException(nameof(target));
-        
+
         if (!ReferenceEquals(_target, target))
             _target = target;
 
         int damageTaken = _physicalDamageCalc.Calculate(
-            source.Damage, 
-            source.PhysicalHitRate, 
+            source.Damage,
+            source.PhysicalHitRate,
             target);
 
         LastDamageValue = damageTaken;
@@ -130,7 +128,7 @@ public class BattleEngine
     public void TurnSteal(Unit? target)
     {
         if (target == null) throw new ArgumentNullException(nameof(target));
-        
+
         Item? stolenItem = _stealCalculator.Steal(Source, target);
 
         // Means, nothing got stolen.
@@ -160,34 +158,36 @@ public class BattleEngine
     }
 
     public void TurnUseItem(Unit target) => TurnUseItem(target, ItemForUse);
-    
+
     public void TurnUseItem(Unit target, Item? item)
     {
-        if (target == null) 
+        if (target == null)
             throw new ArgumentNullException(nameof(target));
-        
+
         if (!ReferenceEquals(_target, target))
             _target = target;
 
         if (item is null)
             throw new InvalidOperationException("No item was set for this action");
-        
+
         int count = _playerInventory.Single(i => i.Name == item.Name).Count;
 
         if (count <= 0)
             throw new InvalidOperationException(
                 $"Can't use item {item.Name} because there is non in inventory.");
 
+        bool wasAilve = target.IsAlive;
         UseItem(item.Name, Source, target);
-        
 
-        
+        if (item.Name == ItemName.PhoenixDown && wasAilve == false)
+            RecalculateQueue(target);
+
         _playerInventory.Single(i => i.Name == item.Name).Count--;
         LastUsedItem = item;
     }
-    
+
     public void UseItem(ItemName name) => UseItem(name, Source, Target);
-    
+
     private static void UseItem(ItemName name, Unit source, Unit target)
     {
         IUseable itemScript = FindItemScript(name);
@@ -196,7 +196,7 @@ public class BattleEngine
         var ctx = new BattleContext(source, target, InCombat: true);
         itemScript.Use(ctx);
     }
-    
+
     private static IUseable FindItemScript(ItemName name)
     {
         // Get class by name.
@@ -232,7 +232,7 @@ public class BattleEngine
 
         return itemScript;
     }
-    
+
     public void GameOver()
     {
         int cnt = PlayerInventory.Single(i => i.Name == ItemName.PhoenixPinion).Count;
@@ -248,5 +248,11 @@ public class BattleEngine
         {
             // Game over, really.
         }
+    }
+
+    private void RecalculateQueue(Unit revivedUnit)
+    {
+        // Put revived unit to the end of the queue.
+        _queue.Enqueue(revivedUnit);
     }
 }
