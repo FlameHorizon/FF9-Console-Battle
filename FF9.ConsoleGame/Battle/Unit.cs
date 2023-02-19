@@ -4,11 +4,70 @@ using FF9.ConsoleGame.Items;
 
 namespace FF9.ConsoleGame.Battle;
 
-public class Unit
+public interface IUnit
+{
+    string Name { get; init; }
+    int Hp { get; set; }
+    int Mp { get; }
+    int Agl { get; init; }
+    int Damage { get; }
+    int Defence { get; }
+    bool IsAlive { get; }
+    int Lv { get; }
+    byte PhysicalHitRate { get; }
+    bool IsPlayer { get; }
+    int Spirit { get; }
+    int[]? StealableItemsRates { get; init; }
+    Item?[] StealableItems { get; init; }
+    List<Item> Inventory { get; }
+    bool InDefenceStance { get; }
+    List<SupportAbility> SupportAbilities { get; set; }
+    int StealableItemsCount { get; }
+    int MaxHp { get; }
+    bool IsDead { get; }
+    bool IsEnemy { get; }
+    int MaxMp { get; }
+    int CalculatePhysicalDamage(int damage, byte attackerHitRate);
+
+    /// <summary>
+    /// This method allows a unit to take damage and reduces the amount
+    /// of damage taken based on the unit's defense.
+    /// It also ensures that the unit's hp cannot go below 0,
+    /// which is typically the minimum value for hp in a game.
+    /// </summary>
+    /// <param name="damage"></param>
+    void TakeDamage(int damage);
+
+    /// <summary>
+    /// Allows a unit to increase its defense by
+    /// 10% in preparation for an incoming attack.
+    /// </summary>
+    void PerformDefence();
+
+    void Equip(EquipmentItem equipmentItem);
+    Item? Steal(int slot);
+    void PutIntoInventory(Item item);
+    void RemoveDefenceStance();
+    void TakeHeal(int heal);
+    bool HasSupportAbility(SupportAbility sa);
+    void Revive();
+    bool IsType(UnitType type);
+    void InstantDeath();
+    void HealFull();
+    void ManaFull();
+    bool HasStatus(Status status);
+    bool RemoveStatus(Status status);
+    void AddStatus(Status status);
+    void TryRemoveStatus(Status status, out bool result);
+    bool HasAnyStatus(IEnumerable<Status> statuses);
+    void RestoreMp(int amount);
+}
+
+public class Unit : IUnit
 {
     public string Name { get; init; }
 
-    public int Hp { get; private set; }
+    public int Hp { get; set; }
     public int Mp { get; private set; }
 
     // Base stats
@@ -39,7 +98,7 @@ public class Unit
     public bool IsPlayer { get; private set; }
     public int Spirit { get; } = 0;
     public int[]? StealableItemsRates { get; init; }
-    public Item?[] StealableItems { get; private set; }
+    public Item?[] StealableItems { get; init; }
     public List<Item> Inventory { get; } = new();
     public bool InDefenceStance { get; private set; }
     public List<SupportAbility> SupportAbilities { get; set; } = new();

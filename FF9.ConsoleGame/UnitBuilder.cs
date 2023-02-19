@@ -8,7 +8,7 @@ public class UnitBuilder
     private int _lv = 1;
     private int _spr;
     private List<Item>? _items;
-    private Item?[]? _stealable;
+    private Item?[]? _stealable = Enumerable.Repeat(default(Item), 4).ToArray();
     private int[]? _rates;
     private int _hp = 1;
     private bool _isPlayer;

@@ -7,9 +7,9 @@ using System.Reflection;
 // ReSharper disable UnusedType.Local
 // ReSharper disable UnusedMember.Local
 
-file static class ItemScripts
+public static class ItemScripts
 {
-    private class HiPotion : IUseable
+    public class HiPotion : IUseable
     {
         public void Use(BattleContext ctx)
         {
@@ -53,6 +53,18 @@ file static class ItemScripts
 
     public class PhoenixPinion : IUseable
     {
+        private readonly IRandomProvider _randomProvider;
+
+        public PhoenixPinion()
+        {
+            _randomProvider = new RandomProvider();
+        }
+        
+        public PhoenixPinion(IRandomProvider randomProvider)
+        {
+            _randomProvider = randomProvider;
+        }
+        
         public void Use(BattleContext ctx)
         {
             if (ctx.Target.IsPlayer)
@@ -63,7 +75,7 @@ file static class ItemScripts
 
             if (ctx.Target.IsEnemy && ctx.Target.IsType(UnitType.Undead))
             {
-                int roll = Random.Shared.Next(1, 11);
+                int roll = _randomProvider.Next(1, 11);
                 if (roll == 10)
                     ctx.Target.InstantDeath();
                 else
@@ -214,8 +226,6 @@ file static class ItemScripts
         }
     }
 }
-
-public record BattleContext(Unit Source, Unit Target, bool InCombat);
 
 public class BattleEngine
 {
