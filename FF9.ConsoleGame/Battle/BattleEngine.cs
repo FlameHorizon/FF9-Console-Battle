@@ -4,6 +4,9 @@ using System.Reflection;
 
 namespace FF9.ConsoleGame.Battle;
 
+/// <summary>
+/// Provides game logic for a battle.
+/// </summary>
 public class BattleEngine
 {
     private Queue<Unit> _queue = new();
@@ -13,6 +16,14 @@ public class BattleEngine
     private readonly List<Item> _playerInventory;
     private Unit? _target;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BattleEngine"/> class.
+    /// </summary>
+    /// <param name="playerUnits">The player units.</param>
+    /// <param name="enemyUnits">The enemy units.</param>
+    /// <param name="physicalDamageCalculator">The physical damage calculator.</param>
+    /// <param name="stealCalculator">The steal calculator.</param>
+    /// <param name="playerInventory">The player inventory.</param>
     public BattleEngine(
         IEnumerable<Unit> playerUnits,
         IEnumerable<Unit> enemyUnits,
@@ -46,27 +57,59 @@ public class BattleEngine
             .ForEach(u => _queue.Enqueue(u));
     }
 
+    /// <summary>
+    /// Gets the queue of units in the battle.
+    /// </summary>
     public IEnumerable<Unit> Queue => _queue;
 
+    /// <summary>
+    /// Gets the player units.
+    /// </summary>
     public IEnumerable<Unit> PlayerUnits { get; }
+
+    /// <summary>
+    /// Gets the enemy units.
+    /// </summary>
     public IEnumerable<Unit> EnemyUnits { get; }
+
+    /// <summary>
+    /// Gets the last stolen item.
+    /// </summary>
     public Item? LastStolenItem { get; private set; }
+
+    /// <summary>
+    /// Gets a value indicating whether the turn is controlled by AI.
+    /// </summary>
     public bool IsTurnAi => Source.IsPlayer == false;
+
+    /// <summary>
+    /// Gets the player inventory.
+    /// </summary>
     public IEnumerable<Item> PlayerInventory => _playerInventory;
+
+    /// <summary>
+    /// Gets the last damage value.
+    /// </summary>
     public int LastDamageValue { get; private set; }
 
     /// <summary>
-    /// Returns Unit which is now taking it's turn.
+    /// Gets the unit that is taking its turn.
     /// </summary>
     public Unit Source => _queue.First();
 
     /// <summary>
-    /// Returns Unit which is a target of an action taken by Source.
+    /// Gets or sets the unit that is the target of an action taken by the Source unit.
     /// </summary>
-    public Unit? Target { get; private set; }
+    public Unit? Target { get; set; }
 
+    /// <summary>
+    /// Gets a value indicating whether all the enemy units are defeated.
+    /// </summary>
     public bool EnemyDefeated => EnemyUnits.All(u => u.IsAlive == false);
 
+    /// <summary>
+    /// Gets a value indicating whether all the enemy units are defeated.
+    /// </summary>
     public bool PlayerDefeated => PlayerUnits.All(u => u.IsAlive == false);
 
     public IEnumerable<Unit> UnitsInBattle => _unitsInBattle;
@@ -125,6 +168,11 @@ public class BattleEngine
     /// </summary>
     public void TurnSteal() => TurnSteal(Target);
 
+    /// <summary>
+    /// Steals an item from a target unit and adds it to the player's inventory.
+    /// </summary>
+    /// <param name="target">The unit to steal an item from.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the target is null.</exception>
     public void TurnSteal(Unit? target)
     {
         if (target == null) throw new ArgumentNullException(nameof(target));
@@ -139,8 +187,16 @@ public class BattleEngine
         LastStolenItem = stolenItem;
     }
 
+    /// <summary>
+    /// Returns an attack action for the AI.
+    /// </summary>
+    /// <returns>The attack action.</returns>
     public BattleAction AiAction() => BattleAction.Attack;
 
+    /// <summary>
+    /// Sets the unit that is the target of an action taken by the Source unit.
+    /// </summary>
+    /// <param name="newTarget">The new target unit.</param>
     public void SetTarget(Unit? newTarget)
     {
         if (newTarget is null)
@@ -149,6 +205,10 @@ public class BattleEngine
         Target = newTarget;
     }
 
+    /// <summary>
+    /// Sets the item that the unit will use in the next turn.
+    /// </summary>
+    /// <param name="newItem">The new item.</param>
     public void SetItem(Item? newItem)
     {
         if (newItem is null)
@@ -157,8 +217,21 @@ public class BattleEngine
         ItemForUse = newItem;
     }
 
+    //// <summary>
+    /// Uses the item set in the item for use property on a target unit.
+    /// </summary>
+    /// <param name="target">The target unit.</param>
     public void TurnUseItem(Unit target) => TurnUseItem(target, ItemForUse);
 
+    /// <summary>
+    /// Uses the specified item on the target unit.
+    /// </summary>
+    /// <param name="target">The target unit.</param>
+    /// <param name="item">The item to use.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the target is null.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if no item was set for this action, or if there are no items of that type in the player's inventory.
+    /// </exception>
     public void TurnUseItem(Unit target, Item? item)
     {
         if (target == null)
@@ -186,17 +259,33 @@ public class BattleEngine
         LastUsedItem = item;
     }
 
+    /// <summary>
+    /// Use an item on the currently set target.
+    /// </summary>
+    /// <param name="name">The name of the item to use.</param>
     public void UseItem(ItemName name) => UseItem(name, Source, Target);
 
+    /// <summary>
+    /// Use an item with the given name on the given source and target units.
+    /// </summary>
+    /// <param name="name">The name of the item to use.</param>
+    /// <param name="source">The unit that is using the item.</param>
+    /// <param name="target">The unit that is the target of the item.</param>
     private static void UseItem(ItemName name, Unit source, Unit target)
     {
         IUseable itemScript = FindItemScript(name);
+
 
         // Create battle context and use method for the item
         var ctx = new BattleContext(source, target, InCombat: true);
         itemScript.Use(ctx);
     }
 
+    /// <summary>
+    /// Find the script for an item with the given name.
+    /// </summary>
+    /// <param name="name">The name of the item to find the script for.</param>
+    /// <returns>The script for the item.</returns>
     private static IUseable FindItemScript(ItemName name)
     {
         // Get class by name.
@@ -207,6 +296,7 @@ public class BattleEngine
                                   && t.GetInterfaces().Any(i => i.Name == nameof(IUseable))
                                   && t.Namespace == "FF9.ConsoleGame.Items"
                                   && t.Name == name.ToString());
+
 
         if (type is null)
         {
@@ -233,6 +323,9 @@ public class BattleEngine
         return itemScript;
     }
 
+    /// <summary>
+    /// Check if the party has a Phoenix Pinion and attempt to use it to revive the party.
+    /// </summary>
     public void GameOver()
     {
         int cnt = PlayerInventory.Single(i => i.Name == ItemName.PhoenixPinion).Count;
@@ -250,6 +343,10 @@ public class BattleEngine
         }
     }
 
+    /// <summary>
+    /// Recalculate the turn order queue when a unit is revived with a Phoenix Down.
+    /// </summary>
+    /// <param name="revivedUnit">The unit that was revived.</param>
     private void RecalculateQueue(Unit revivedUnit)
     {
         // Put revived unit to the end of the queue.
